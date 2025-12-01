@@ -1,0 +1,761 @@
+Digital Market — How it works (Q&A + Function Reference)
+===============================================
+
+This file explains, in Q&A format, how Digital Market works and where to find the important functions and flows.
+
+Overview
+--------
+- A static demo NFT marketplace that uses `mockNftData` and a simulated `Market` persisted in localStorage.
+- No real blockchain activity is performed — Omega operations are simulated via functions in `market.js`.
+
+Key pages and files
+-------------------
+- `index.html` + `index.js` / `main.js`: Homepage, grid, filter, carousel, and modal logic.
+- `nft-details.html` + `details.js`: NFT detail page with charting and buy/list interactions.
+- `profile.html` + `profile.js`: User profile and collections.
+- `market.js`: Market simulation and localStorage management.
+- `wallet.js`: Wallet integration and UI updates using `window.ethereum` (MetaMask).
+- `data.js`: Mock data source: `mockNftData` array.
+
+Lifecycle and main functions
+---------------------------
+- `initializeApp()` — sets up initial data and calls all initializers.
+- `initializeParticles()` — p5-based background, present on hero sections.
+- `initializeCarousel()` — Splide carousels setup.
+- `initializeEventListeners()` — Attach UI events like connect wallets and filters.
+- `initializeFilters()` / `applyFilters()` / `sortNfts()` — filter/sort the in-memory dataset and rerender grid.
+- `loadNftGrid()` / `createNftCard(nft)` — build and render the NFT cards on the grid.
+
+Market & Purchase Flow
+----------------------
+- `openPurchaseModal(nft)` — fill modal and show it.
+- `confirmPurchase()` — call `Market.simulatePurchaseByMockId(nft.id, currentAccount)`, update UI, and return simulated txHash.
+- `plot` and `modal` functions are UI-specific and animate using `anime.js`.
+
+Sell / List / Quick-sell
+------------------------
+- `showSellNftModal(nftId)` & `confirmSell(nftId)` — list NFT for sale using `Market.simulateListByMockId`.
+- `quickSellNft(nftId)` — quick-sell via `Market.simulateQuickSellByMockId`.
+
+Create NFT
+----------
+- `showCreateNftModal()` & `confirmCreateNft()` — create an NFT by collecting form inputs, generating a new object, pushing to `mockNftData`, saving to `nftData` in localStorage, and re-rendering.
+
+Wallet integration
+------------------
+- `connectWallet()` — request `eth_requestAccounts`, update `currentAccount`, and dispatch `walletConnected`.
+- `checkWalletConnection()` — detect initial accounts and attach event listeners to `ethereum` events.
+
+Market simulation functions (in `market.js`)
+------------------------------------------
+- `Market.init()`: load or seed the market state.
+- `Market.getState()` / `Market.saveState(state)`: access & store market state.
+- `Market.simulatePurchaseByMockId(mockId, buyer)` — simulate purchasing an NFT.
+- `Market.simulateListByMockId(mockId, price)` — simulate listing an NFT for sale.
+- `Market.simulateQuickSellByMockId(mockId)` — simulate an instant quick sell.
+
+Events and persistence
+----------------------
+- `walletConnected` and `walletDisconnected` — custom events for wallet changes.
+- `nftPurchased` — dispatched after simulated purchases.
+- localStorage keys: `nftMarketState`, `nftData`, `fakeBalance`.
+
+How to reset demo data
+----------------------
+In DevTools console:
+```javascript
+localStorage.removeItem('nftMarketState');
+localStorage.removeItem('nftData');
+localStorage.removeItem('fakeBalance');
+window.location.reload();
+```
+
+Improvements & Notes
+--------------------
+- Refactor common logic between `index.js` and `main.js` into `common.js`.
+- Add TypeScript types or JSDoc for functions.
+- Replace Market simulation functions with real API or Web3 code if integrating with a backend and contracts.
+
+Contact / Author
+-----------------
+- Amit Kadam — GitHub: `amitkadam96k` — Email: `amitkadam96k@gmail.com`
+
+End of HOW_WEBSITE_WORKS.txt
+Digital Market — How the website works (Q&A + Function Reference)
+==============================================================
+
+This file provides a comprehensive, function-level view of how the Digital Market frontend works, the data flows, persistence model, and third-party libraries used.
+
+Purpose: Use this as a quick reference for developers to understand what each part of the frontend code does and how it interacts with the rest of the application.
+
+---
+
+Q: What is Digital Market?
+A: A static, client-side demo NFT marketplace that uses a mock dataset and a simulated Market. It's for prototyping, design and front-end demos. No real blockchain transactions are executed — `Market` simulates transactions and stores state in localStorage.
+
+Q: What libraries and tools are used?
+A:
+- p5.js — particle background visuals.
+- Splide — carousels.
+- anime.js — entrance and modal animations.
+- ECharts — price chart in NFT details.
+- MetaMask (window.ethereum) — optional wallet integration.
+- localStorage — persistence for market state and persisted NFT data.
+
+Q: Where is the main data stored?
+A:
+- `data.js`: `mockNftData` array with NFT objects.
+- `market.js`: Market state persisted in localStorage under the key `nftMarketState` (balance, inventory, listings, activity).
+- `nftData` key in localStorage: updated copy of `mockNftData` if users create/list/delete NFTs.
+
+Q: What pages are included and how do they start?
+A:
+- `index.html` — marketplace grid; scripts: `index.js` and `main.js`.
+- `nft-details.html` — NFT detail page; script: `details.js`.
+- `profile.html` — User profile; script: `profile.js`.
+- `tokens.html`, `collections.html`, `activity.html`, `drops.html` — additional listing pages.
+
+Q: Application lifecycle and initialization
+A: Key lifecycle steps executed on `DOMContentLoaded` or `window.onload`:
+- Initialize data (read `nftData` from localStorage if present, otherwise use `mockNftData`).
+- Initialize UI components (particles, carousels, filters).
+- Set event listeners for wallet, filters, modals, create/sell flows.
+- Load initial NFT grid via `loadNftGrid()`.
+
+Q: Filtering, sorting, pagination — which functions?
+A:
+- `initializeFilters()` — sets up price slider and filters.
+- `applyFilters()` — gathers filter state and builds `filteredNftData`, then calls `loadNftGrid()`.
+- `sortNfts()` — reorders `filteredNftData` by the chosen sort option.
+- `loadMoreNfts()` — pagination (increase `currentPage`) and calls `loadNftGrid()`.
+
+Q: Grid rendering and card creation
+A:
+- `loadNftGrid()` — prepares the current slice of `filteredNftData` and calls `createNftCard()` for each item.
+- `createNftCard(nft)` — returns a DOM element populated using NFT fields (name, image, price, chain, attributes, etc.) and attaches event handlers:
+  - `buy-now-btn` -> `openPurchaseModal(nft)`
+  - `view-auction` / `view-offers` -> tries to navigate to `nft-details.html?id=${nft.id}`
+  - `sell-nft-btn` / `quick-sell-btn` -> `showSellNftModal`/`quickSellNft`
+
+Q: Purchase flow and modal interactions
+A:
+- `openPurchaseModal(nft)` — populates the purchase modal (name, price, service fee), stores `nft.id` in modal dataset and opens it visually.
+- `confirmPurchase()` — performs a progressive UI/animations, calls `Market.simulatePurchaseByMockId(nft.id, currentAccount)` and updates state/UI after success.
+- `closePurchaseModal()` — hides modal and resets state.
+
+Q: Sell/Listing & Quick-sell flows
+A:
+- `showSellNftModal(nftId)` — modal to set a price and list the NFT.
+- `confirmSell(nftId)` — calls `Market.simulateListByMockId(nftId, price)` then refreshes UI.
+- `quickSellNft(nftId)` — quick-selling uses `Market.simulateQuickSellByMockId(nftId)`.
+
+Q: NFT creation (user generated NFTs)
+A:
+- `showCreateNftModal()` and `confirmCreateNft()` — allow the user to upload/preview an image, enter name, collection, price and category, then create an NFT object and persist it to `localStorage`.
+
+Q: Market module (`market.js`) — responsibilities & functions
+A:
+- Simulate balances, listings, and activities; persist to localStorage.
+- `Market.init()` — initialize or load default state.
+- `Market.getState()` / `Market.saveState(state)` — state accessors.
+- `Market.simulatePurchaseByMockId(mockId, buyerAddress)` — simulate purchase and returns { success, txHash }.
+- `Market.simulateQuickSellByMockId(mockId)` — simulate a quick sell.
+- `Market.simulateListByMockId(mockId, price)` — updates NFT's price and status.
+- `Market.setMaxBalance(amount)` — developer helper.
+
+Q: Wallet integration (wallet.js)
+A:
+- `checkWalletConnection()` — check existing connections.
+- `connectWallet()` — request `eth_requestAccounts`, set `currentAccount`, dispatch `walletConnected` event.
+- `disconnectWallet()` — clear `currentAccount` and dispatch `walletDisconnected`.
+- `handleAccountsChanged()` — handle account change events and reload user data.
+- `updateWalletUI()` — shows/hides connect button, wallet address, and reads balance from `Market.getState()`.
+
+Q: Events used to coordinate behavior across scripts
+A:
+- `walletConnected` — Signals wallet connected; several scripts listen and update (e.g., profile, details, index).
+- `walletDisconnected` — Signals wallet disconnection.
+- `nftPurchased` — Market emits after purchases to update other parts of the UI.
+
+Q: Where are animations and charts implemented?
+A:
+- Particles: `initializeParticles()` in `index.js`/`main.js` using p5.
+- Carousels: `initializeCarousel()` using Splide.
+- Animations: `anime.js` for transitions and modal entrance.
+- Charts: `initializePriceChart()` in `details.js` using ECharts.
+
+Q: Data persistence keys in localStorage
+A:
+- `nftMarketState` — Market state: balance, inventory, listings, activity.
+- `nftData` — persisted `mockNftData` after user changes.
+- `fakeBalance` — fallback demo balance (rarely used).
+
+Q: Common utility/formatting helpers
+A:
+- `formatPrice(price)` — presentable price formatting.
+- `formatAddress(address)` — helper to shorten addresses for UI.
+
+Q: Known issues & improvement opportunities
+A:
+- Duplication: `index.js` and `main.js` share similar initialization and should be refactored.
+- Add a shared `common.js` for utilities used across scripts.
+- Add tests (unit tests for `Market` functions, integration tests for the grid/modal flows).
+- Add or extract a central UI/modal helper to reduce duplication of modal markup and handlers.
+
+Q: How can I reset the demo state?
+A:
+1) In the browser, run the DevTools Console or manually clear localStorage:
+```javascript
+localStorage.removeItem('nftMarketState');
+localStorage.removeItem('nftData');
+localStorage.removeItem('fakeBalance');
+window.location.reload();
+```
+
+Q: How to add author meta or footer across pages?
+A: Insert in `<head>` of each HTML file:
+```html
+<meta name="author" content="Amit Kadam (https://github.com/amitkadam96k)" />
+```
+Add a footer snippet near the bottom of each body if a visible author link is desired.
+
+Q: Extra notes
+A: Mock addresses in `data.js` are not valid — they are placeholders for demo. Use the `devTopupBtnFloating` button or `Market.setMaxBalance()` to set a high demo balance for testing.
+
+---
+If you'd like, I can now:
+- Add inline comments to the top of the primary scripts to explain each function and its contract.
+- Add TypeScript or docblocks for functions to help future developers.
+- Add the author meta tag and visible footer across pages (or a single shared partial).
+
+If you want those changes, tell me which action you prefer and I'll implement it.
+
+---
+End of HOW_WEBSITE_WORKS.txt
+Digital Market — How the website works (Q&A + Function Reference)
+==============================================================
+
+This file provides a comprehensive, function-level view of how the Digital Market frontend works, the data flows, persistence model, and third-party libraries used.
+
+Purpose: Use this as a quick reference for developers to understand what each part of the frontend code does and how it interacts with the rest of the application.
+
+---
+
+Q: What is Digital Market?
+A: A static, client-side demo NFT marketplace that uses a mock dataset and a simulated Market. It's for prototyping, design and front-end demos. No real blockchain transactions are executed — `Market` simulates transactions and stores state in localStorage.
+
+Q: What libraries and tools are used?
+A:
+- p5.js — particle background visuals.
+- Splide — carousels.
+- anime.js — entrance and modal animations.
+- ECharts — price chart in NFT details.
+- MetaMask (window.ethereum) — optional wallet integration.
+- localStorage — persistence for market state and persisted NFT data.
+
+Q: Where is the main data stored?
+A:
+- `data.js`: `mockNftData` array with NFT objects.
+- `market.js`: Market state persisted in localStorage under the key `nftMarketState` (balance, inventory, listings, activity).
+- `nftData` key in localStorage: updated copy of `mockNftData` if users create/list/delete NFTs.
+
+Q: What pages are included and how do they start?
+A:
+- `index.html` — marketplace grid; scripts: `index.js` and `main.js`.
+- `nft-details.html` — NFT detail page; script: `details.js`.
+- `profile.html` — User profile; script: `profile.js`.
+- `tokens.html`, `collections.html`, `activity.html`, `drops.html` — additional listing pages.
+
+Q: Application lifecycle and initialization
+A: Key lifecycle steps executed on `DOMContentLoaded` or `window.onload`:
+- Initialize data (read `nftData` from localStorage if present, otherwise use `mockNftData`).
+- Initialize UI components (particles, carousels, filters).
+- Set event listeners for wallet, filters, modals, create/sell flows.
+- Load initial NFT grid via `loadNftGrid()`.
+
+Q: Filtering, sorting, pagination — which functions?
+A:
+- `initializeFilters()` — sets up price slider and filters.
+- `applyFilters()` — gathers filter state and builds `filteredNftData`, then calls `loadNftGrid()`.
+- `sortNfts()` — reorders `filteredNftData` by the chosen sort option.
+- `loadMoreNfts()` — pagination (increase `currentPage`) and calls `loadNftGrid()`.
+
+Q: Grid rendering and card creation
+A:
+- `loadNftGrid()` — prepares the current slice of `filteredNftData` and calls `createNftCard()` for each item.
+- `createNftCard(nft)` — returns a DOM element populated using NFT fields (name, image, price, chain, attributes, etc.) and attaches event handlers:
+  - `buy-now-btn` -> `openPurchaseModal(nft)`
+  - `view-auction` / `view-offers` -> tries to navigate to `nft-details.html?id=${nft.id}`
+  - `sell-nft-btn` / `quick-sell-btn` -> `showSellNftModal`/`quickSellNft`
+
+Q: Purchase flow and modal interactions
+A:
+- `openPurchaseModal(nft)` — populates the purchase modal (name, price, service fee), stores `nft.id` in modal dataset and opens it visually.
+- `confirmPurchase()` — performs a progressive UI/animations, calls `Market.simulatePurchaseByMockId(nft.id, currentAccount)` and updates state/UI after success.
+- `closePurchaseModal()` — hides modal and resets state.
+
+Q: Sell/Listing & Quick-sell flows
+A:
+- `showSellNftModal(nftId)` — modal to set a price and list the NFT.
+- `confirmSell(nftId)` — calls `Market.simulateListByMockId(nftId, price)` then refreshes UI.
+- `quickSellNft(nftId)` — quick-selling uses `Market.simulateQuickSellByMockId(nftId)`.
+
+Q: NFT creation (user generated NFTs)
+A:
+- `showCreateNftModal()` and `confirmCreateNft()` — allow the user to upload/preview an image, enter name, collection, price and category, then create an NFT object and persist it to `localStorage`.
+
+Q: Market module (`market.js`) — responsibilities & functions
+A:
+- Simulate balances, listings, and activities; persist to localStorage.
+- `Market.init()` — initialize or load default state.
+- `Market.getState()` / `Market.saveState(state)` — state accessors.
+- `Market.simulatePurchaseByMockId(mockId, buyerAddress)` — simulate purchase and returns { success, txHash }.
+- `Market.simulateQuickSellByMockId(mockId)` — simulate a quick sell.
+- `Market.simulateListByMockId(mockId, price)` — updates NFT's price and status.
+- `Market.setMaxBalance(amount)` — developer helper.
+
+Q: Wallet integration (wallet.js)
+A:
+- `checkWalletConnection()` — check existing connections.
+- `connectWallet()` — request `eth_requestAccounts`, set `currentAccount`, dispatch `walletConnected` event.
+- `disconnectWallet()` — clear `currentAccount` and dispatch `walletDisconnected`.
+- `handleAccountsChanged()` — handle account change events and reload user data.
+- `updateWalletUI()` — shows/hides connect button, wallet address, and reads balance from `Market.getState()`.
+
+Q: Events used to coordinate behavior across scripts
+A:
+- `walletConnected` — Signals wallet connected; several scripts listen and update (e.g., profile, details, index).
+- `walletDisconnected` — Signals wallet disconnection.
+- `nftPurchased` — Market emits after purchases to update other parts of the UI.
+
+Q: Where are animations and charts implemented?
+A:
+- Particles: `initializeParticles()` in `index.js`/`main.js` using p5.
+- Carousels: `initializeCarousel()` using Splide.
+- Animations: `anime.js` for transitions and modal entrance.
+- Charts: `initializePriceChart()` in `details.js` using ECharts.
+
+Q: Data persistence keys in localStorage
+A:
+- `nftMarketState` — Market state: balance, inventory, listings, activity.
+- `nftData` — persisted `mockNftData` after user changes.
+- `fakeBalance` — fallback demo balance (rarely used).
+
+Q: Common utility/formatting helpers
+A:
+- `formatPrice(price)` — presentable price formatting.
+- `formatAddress(address)` — helper to shorten addresses for UI.
+
+Q: Known issues & improvement opportunities
+A:
+- Duplication: `index.js` and `main.js` share similar initialization and should be refactored.
+- Add a shared `common.js` for utilities used across scripts.
+- Add tests (unit tests for `Market` functions, integration tests for the grid/modal flows).
+- Add or extract a central UI/modal helper to reduce duplication of modal markup and handlers.
+
+Q: How can I reset the demo state?
+A:
+1) In the browser, run the DevTools Console or manually clear localStorage:
+```javascript
+localStorage.removeItem('nftMarketState');
+localStorage.removeItem('nftData');
+localStorage.removeItem('fakeBalance');
+window.location.reload();
+```
+
+Q: How to add author meta or footer across pages?
+A: Insert in `<head>` of each HTML file:
+```html
+<meta name="author" content="Amit Kadam (https://github.com/amitkadam96k)" />
+```
+Add a footer snippet near the bottom of each body if a visible author link is desired.
+
+Q: Extra notes
+A: Mock addresses in `data.js` are not valid — they are placeholders for demo. Use the `devTopupBtnFloating` button or `Market.setMaxBalance()` to set a high demo balance for testing.
+
+---
+
+If you'd like, I can now:
+- Add inline comments to the top of the primary scripts to explain each function and its contract.
+- Add TypeScript or docblocks for functions to help future developers.
+- Add the author meta tag and visible footer across pages (or a single shared partial).
+
+If you want those changes, tell me which action you prefer and I'll implement it.
+
+---
+End of HOW_WEBSITE_WORKS.txt
+Digital Market — How the website works (Q&A + Function Reference)
+==============================================================
+
+This file replaces the previous Q&A and provides a comprehensive, function-level view of how the Digital Market frontend works, the data and persistence model, and which libraries and files are used.
+
+Purpose: Use this as a quick reference for developers to understand what each part of the frontend code does and how it interacts with the rest of the application.
+
+---
+
+Q: What is Digital Market?
+A: A static, client-side demo NFT marketplace that uses a mock dataset and a simulated market. It's primarily for prototyping, design and front-end demos. It doesn't execute real blockchain transactions — the Market logic simulates transactions and stores state in browser localStorage.
+
+Q: What technologies and libraries are used in the project?
+A:
+- Vanilla HTML/CSS/JavaScript for the UI and logic.
+- p5.js — particle background visuals (used in `initializeParticles()` in `index.js`/`main.js`).
+- Splide — carousels for featured and trending content (`initializeCarousel()`).
+- anime.js — entrance modal and UI animations.
+- ECharts — price charts on the NFT details page (`initializePriceChart()` in `details.js`).
+- MetaMask (Web3 provider) — used as a simulated wallet integration via `window.ethereum` in `wallet.js`.
+- localStorage — persistence for market state and persisted NFT dataset.
+
+Q: Where is data kept and how do I reset state?
+A:
+- `data.js`: Contains the in-memory mock data array `mockNftData` with many NFT objects and initial properties like `id`, `name`, `image`, `price`, `owner`, etc.
+- `market.js`: The Market state is in localStorage under the key `nftMarketState`. This includes `balance`, `inventory`, `listings`, and `activity`.
+- User changes (create, list, buy, delete) also update localStorage under `nftData`.
+- To reset state, clear browser localStorage or remove `nftMarketState` and `nftData` keys.
+
+Q: What pages exist in the project and their entry points?
+A:
+- `index.html` — Main marketplace listing page. Entry script: `index.js` and/or `main.js`.
+- `nft-details.html` — Detail view for a single NFT. Entry script: `details.js`.
+- `tokens.html`, `collections.html`, `activity.html`, `drops.html` — Listing subsets and pages with similar UI patterns and shared JS.
+- `profile.html` — User profile page. Entry script: `profile.js`.
+
+Q: How does app initialization happen? What runs on page load?
+A: Document-level event `DOMContentLoaded` or `window.onload` handlers call initialization functions that set up particles, carousels, event listeners, filters, and initial data load. Typical function names:
+- `initializeApp()` — Top-level setup (e.g., in `main.js`).
+- `initializeParticles()` — p5 background setup.
+- `initializeCarousel()` — Splide carousels.
+- `initializeEventListeners()` — Attaches handlers for wallet, filters, modals, buttons.
+- `initializeFilters()` — Sets up price range and filter listeners.
+
+Q: How is the NFT grid rendered and paginated?
+A:
+- Filtered data is stored in `filteredNftData`, initially a copy of `mockNftData`.
+- `loadNftGrid()` computes slice indices using `currentPage` and `itemsPerPage` and then loops through `filteredNftData` creating cards with `createNftCard(nft)`.
+- `loadMoreNfts()` increments `currentPage` to show more items.
+
+Q: How do filters and sorting work?
+A: `applyFilters()` reads filter checkbox states (status, chain, category) and price range and filters `mockNftData` to produce `filteredNftData`, then calls `loadNftGrid()`. `sortNfts()` sorts `filteredNftData` based on popular sort options (recent, popular, price, trending) and reloads the grid.
+
+Q: What functions create the NFT card UI & what do they do?
+A: createNftCard(nft) — used by `index.js` and `main.js`.
+- Purpose: build DOM element for each card and attach event handlers.
+- Behavior: shows image, name, collection, price, attributes, labels (NEW/TRENDING) and contextual buttons (Buy, Sell, Quick Sell, Create controls).
+- Hooks: attaches `buy-now-btn` click to `openPurchaseModal(nft)` and auction/offers to navigate to `nft-details.html?id=...`.
+
+Q: How does the purchase flow work?
+A: Modal-based flow across `index.js`, `main.js`, and `details.js`:
+- `openPurchaseModal(nft)`: fills modal elements, calculates service fee (2.5% in this demo) and displays the modal.
+- `confirmPurchase()`: performs optimistic UI steps and calls `Market.simulatePurchaseByMockId(nft.id, currentAccount)`; if success, updates local state and UI, shows txHash.
+- UI is updated by calling `loadNftGrid()` and `loadUserData()` to reflect new ownership.
+
+Q: How does the sell/list flow work?
+A:
+- `showSellNftModal(nftId)`: opens a modal to enter sale price and sale type (buy-now or auction).
+- `confirmSell(nftId)`: calls `Market.simulateListByMockId(nftId, price)` which updates the `nft` object's `price` and `status`, and optionally `localStorage`.
+
+Q: What is the Quick Sell behavior?
+A: `quickSellNft(nftId)` calculates a quick-sell price (generally 90% of price) and calls `Market.simulateQuickSellByMockId(nftId)`. The Market simulation immediately increases demo balance and updates mock data and listings.
+
+Q: What does `Market` (market.js) do and what functions does it provide?
+A: A simulated Market module with the following functions:
+- `Market.init()` — initialize or load state from localStorage.
+- `Market.getState()` — returns the stored Market state.
+- `Market.saveState(state)` — writes state to localStorage and calls `updateUI()` to refresh UI elements.
+- `Market.setMaxBalance(amount)` — developer helper to set a big demo balance.
+- `Market.buyNFT(nftId)` — purchase a listing (not widely used in modern code; the recommended path calls `simulatePurchaseByMockId`).
+- `Market.simulatePurchaseByMockId(mockId, buyerAddress)` — simulates a purchase for a given numeric NFT id; it deducts the price+fee from Market balance and sets the nft.owner to buyerAddress.
+- `Market.simulateQuickSellByMockId(mockId)` — instantly adds sellPrice to market balance and sets nft.owner to null/market.
+- `Market.simulateListByMockId(mockId, price)` — updates nft.price and status to be listed.
+- `Market.updateUI()` — updates visible wallet balance and button states.
+
+Q: Which wallet functions control MetaMask integration?
+A: Provided in `wallet.js`:
+- `checkWalletConnection()` — checks whether MetaMask accounts exist.
+- `connectWallet()` — requests `eth_requestAccounts` and sets `currentAccount`, then dispatches `walletConnected` custom event.
+- `disconnectWallet()` — clears `currentAccount` and dispatches `walletDisconnected`.
+- `handleAccountsChanged(accounts)` — handles account switching and triggers UI changes.
+- `updateWalletUI()` — updates wallet-related UI (address, balance, connect button).
+
+Q: How is mock data updated and persisted when users create or delete NFTs?
+A:
+- Creating an NFT: `confirmCreateNft()` collects form data and an image preview (a data URI or resource path), builds a new NFT object, inserts it into `mockNftData` and calls `localStorage.setItem('nftData', JSON.stringify(mockNftData))`.
+- Deleting an NFT: functions like `deleteNft(nftId)` remove an entry from `mockNftData` and update `localStorage`.
+
+Q: How do we update UI that depends on wallet events?
+A: `window.dispatchEvent(new CustomEvent('walletConnected', { detail: { account: currentAccount } }))` is used in `wallet.js`; other modules (details.js, profile.js, index.js) add listeners for `walletConnected` or `nftPurchased` events to reload data and update UI.
+
+Q: Where is the animated particle background implemented?
+A: `initializeParticles()` — implemented with p5.js in `index.js` and `main.js`. It creates a responsive canvas and draws particles, shooting stars and soft orbs. There’s hover-related code to make the hero interactive.
+
+Q: What should developers know about the structure and possible improvements?
+A: Notable implementation details & suggestions:
+- The demo mixes `main.js` and `index.js` code; reuse/shared utilities may be extracted to avoid duplication (create a `common.js`).
+- Tests don't exist; add unit tests around `Market` functions (simulate purchase/list/quick-sell) and DOM-based UI tests for modals.
+- No backend is present. If you want real transactions, integrate a backend API and use a real Web3 provider (ethers.js or web3.js) to replace `Market.simulate*` functions.
+- Consider adding an API endpoint to serve `mockNftData` rather than bundling it into the client for larger demos.
+
+Q: How to add the author or meta info across pages?
+A: To add an author tag and footer across pages:
+- Add: <meta name="author" content="Amit Kadam (https://github.com/amitkadam96k)"> in `<head>` of each HTML page.
+- Optionally, include a small footer snippet in each HTML file that links to GitHub/email.
+
+Q: Frequently-used function index (short list):
+A: Top-level functions to be aware of:
+- initializeApp() — main-js startup (index/main)
+- initializeParticles() — p5 visuals
+- initializeCarousel() — Splide carousels
+- initializeEventListeners() — attach UI handlers
+- initializeFilters(), applyFilters(), sortNfts() — filter & sort logic
+- loadNftGrid(), loadMoreNfts(), createNftCard() — grid rendering
+- openPurchaseModal(), confirmPurchase(), closePurchaseModal() — purchase flow
+- showSellNftModal(), confirmSell() — sell/list flow
+- showCreateNftModal(), confirmCreateNft() — create flow
+- connectWallet(), disconnectWallet(), handleAccountsChanged(), updateWalletUI() — wallet control
+- Market.simulatePurchaseByMockId(), Market.simulateQuickSellByMockId(), Market.simulateListByMockId() — simulated market functions
+
+---
+If you’d like, I can now:
+- Add inline comments to the top of the primary scripts to explain each function and its contract.
+- Add TypeScript or docblocks for functions to help future developers.
+- Add the author meta tag and visible footer across pages (or a single shared partial).
+
+If you want those changes, tell me which action you prefer and I'll implement it.
+
+---
+End of HOW_WEBSITE_WORKS.txtDigital Market — How the website works (Q&A + Function Reference)
+==============================================================
+
+This file replaces the previous Q&A and provides a comprehensive, function-level view of how the Digital Market frontend works, the data and persistence model, and which libraries and files are used.
+
+Purpose: Use this as a quick reference for developers to understand what each part of the frontend code does and how it interacts with the rest of the application.
+
+---
+
+Q: What is Digital Market?
+A: A static, client-side demo NFT marketplace that uses a mock dataset and a simulated market. It's primarily for prototyping, design and front-end demos. It doesn't execute real blockchain transactions — the Market logic simulates transactions and stores state in browser localStorage.
+
+Q: What technologies and libraries are used in the project?
+A:
+- Vanilla HTML/CSS/JavaScript for the UI and logic.
+- p5.js — particle background visuals (used in `initializeParticles()` in `index.js`/`main.js`).
+- Splide — carousels for featured and trending content (`initializeCarousel()`).
+- anime.js — entrance modal and UI animations.
+- ECharts — price charts on the NFT details page (`initializePriceChart()` in `details.js`).
+- MetaMask (Web3 provider) — used as a simulated wallet integration via `window.ethereum` in `wallet.js`.
+- localStorage — persistence for market state and persisted NFT dataset.
+
+Q: Where is data kept and how do I reset state?
+A:
+- `data.js`: Contains the in-memory mock data array `mockNftData` with many NFT objects and initial properties like `id`, `name`, `image`, `price`, `owner`, etc.
+- `market.js`: The Market state is in localStorage under the key `nftMarketState`. This includes `balance`, `inventory`, `listings`, and `activity`.
+- User changes (create, list, buy, delete) also update localStorage under `nftData`.
+- To reset state, clear browser localStorage or remove `nftMarketState` and `nftData` keys.
+
+Q: What pages exist in the project and their entry points?
+A:
+- `index.html` — Main marketplace listing page. Entry script: `index.js` and/or `main.js`.
+- `nft-details.html` — Detail view for a single NFT. Entry script: `details.js`.
+- `tokens.html`, `collections.html`, `activity.html`, `drops.html` — Listing subsets and pages with similar UI patterns and shared JS.
+- `profile.html` — User profile page. Entry script: `profile.js`.
+
+Q: How does app initialization happen? What runs on page load?
+A: Document-level event `DOMContentLoaded` or `window.onload` handlers call initialization functions that set up particles, carousels, event listeners, filters, and initial data load. Typical function names:
+- `initializeApp()` — Top-level setup (e.g., in `main.js`).
+- `initializeParticles()` — p5 background setup.
+- `initializeCarousel()` — Splide carousels.
+- `initializeEventListeners()` — Attaches handlers for wallet, filters, modals, buttons.
+- `initializeFilters()` — Sets up price range and filter listeners.
+
+Q: How is the NFT grid rendered and paginated?
+A:
+- Filtered data is stored in `filteredNftData`, initially a copy of `mockNftData`.
+- `loadNftGrid()` computes slice indices using `currentPage` and `itemsPerPage` and then loops through `filteredNftData` creating cards with `createNftCard(nft)`.
+- `loadMoreNfts()` increments `currentPage` to show more items.
+
+Q: How do filters and sorting work?
+A: `applyFilters()` reads filter checkbox states (status, chain, category) and price range and filters `mockNftData` to produce `filteredNftData`, then calls `loadNftGrid()`. `sortNfts()` sorts `filteredNftData` based on popular sort options (recent, popular, price, trending) and reloads the grid.
+
+Q: What functions create the NFT card UI & what do they do?
+A: createNftCard(nft) — used by `index.js` and `main.js`.
+- Purpose: build DOM element for each card and attach event handlers.
+- Behavior: shows image, name, collection, price, attributes, labels (NEW/TRENDING) and contextual buttons (Buy, Sell, Quick Sell, Create controls).
+- Hooks: attaches `buy-now-btn` click to `openPurchaseModal(nft)` and auction/offers to navigate to `nft-details.html?id=...`.
+
+Q: How does the purchase flow work?
+A: Modal-based flow across `index.js`, `main.js`, and `details.js`:
+- `openPurchaseModal(nft)`: fills modal elements, calculates service fee (2.5% in this demo) and displays the modal.
+- `confirmPurchase()`: performs optimistic UI steps and calls `Market.simulatePurchaseByMockId(nft.id, currentAccount)`; if success, updates local state and UI, shows txHash.
+- UI is updated by calling `loadNftGrid()` and `loadUserData()` to reflect new ownership.
+
+Q: How does the sell/list flow work?
+A:
+- `showSellNftModal(nftId)`: opens a modal to enter sale price and sale type (buy-now or auction).
+- `confirmSell(nftId)`: calls `Market.simulateListByMockId(nftId, price)` which updates the `nft` object's `price` and `status`, and optionally `localStorage`.
+
+Q: What is the Quick Sell behavior?
+A: `quickSellNft(nftId)` calculates a quick-sell price (generally 90% of price) and calls `Market.simulateQuickSellByMockId(nftId)`. The Market simulation immediately increases demo balance and updates mock data and listings.
+
+Q: What does `Market` (market.js) do and what functions does it provide?
+A: A simulated Market module with the following functions:
+- `Market.init()` — initialize or load state from localStorage.
+- `Market.getState()` — returns the stored Market state.
+- `Market.saveState(state)` — writes state to localStorage and calls `updateUI()` to refresh UI elements.
+- `Market.setMaxBalance(amount)` — developer helper to set a big demo balance.
+- `Market.buyNFT(nftId)` — purchase a listing (not widely used in modern code; the recommended path calls `simulatePurchaseByMockId`).
+- `Market.simulatePurchaseByMockId(mockId, buyerAddress)` — simulates a purchase for a given numeric NFT id; it deducts the price+fee from Market balance and sets the nft.owner to buyerAddress.
+- `Market.simulateQuickSellByMockId(mockId)` — instantly adds sellPrice to market balance and sets nft.owner to null/market.
+- `Market.simulateListByMockId(mockId, price)` — updates nft.price and status to be listed.
+- `Market.updateUI()` — updates visible wallet balance and button states.
+
+Q: Which wallet functions control MetaMask integration?
+A: Provided in `wallet.js`:
+- `checkWalletConnection()` — checks whether MetaMask accounts exist.
+- `connectWallet()` — requests `eth_requestAccounts` and sets `currentAccount`, then dispatches `walletConnected` custom event.
+- `disconnectWallet()` — clears `currentAccount` and dispatches `walletDisconnected`.
+- `handleAccountsChanged(accounts)` — handles account switching and triggers UI changes.
+- `updateWalletUI()` — updates wallet-related UI (address, balance, connect button).
+
+Q: How is mock data updated and persisted when users create or delete NFTs?
+A:
+- Creating an NFT: `confirmCreateNft()` collects form data and an image preview (a data URI or resource path), builds a new NFT object, inserts it into `mockNftData` and calls `localStorage.setItem('nftData', JSON.stringify(mockNftData))`.
+- Deleting an NFT: functions like `deleteNft(nftId)` remove an entry from `mockNftData` and update `localStorage`.
+
+Q: How do we update UI that depends on wallet events?
+A: `window.dispatchEvent(new CustomEvent('walletConnected', { detail: { account: currentAccount } }))` is used in `wallet.js`; other modules (details.js, profile.js, index.js) add listeners for `walletConnected` or `nftPurchased` events to reload data and update UI.
+
+Q: Where is the animated particle background implemented?
+A: `initializeParticles()` — implemented with p5.js in `index.js` and `main.js`. It creates a responsive canvas and draws particles, shooting stars and soft orbs. There’s hover-related code to make the hero interactive.
+
+Q: What should developers know about the structure and possible improvements?
+A: Notable implementation details & suggestions:
+- The demo mixes `main.js` and `index.js` code; reuse/shared utilities may be extracted to avoid duplication (create a `common.js`).
+- Tests don't exist; add unit tests around `Market` functions (simulate purchase/list/quick-sell) and DOM-based UI tests for modals.
+- No backend is present. If you want real transactions, integrate a backend API and use a real Web3 provider (ethers.js or web3.js) to replace `Market.simulate*` functions.
+- Consider adding an API endpoint to serve `mockNftData` rather than bundling it into the client for larger demos.
+
+Q: How to add the author or meta info across pages?
+A: To add an author tag and footer across pages:
+- Add: <meta name="author" content="Amit Kadam (https://github.com/amitkadam96k)"> in `<head>` of each HTML page.
+- Optionally, include a small footer snippet in each HTML file that links to GitHub/email.
+
+Q: Frequently-used function index (short list):
+A: Top-level functions to be aware of:
+- initializeApp() — main-js startup (index/main)
+- initializeParticles() — p5 visuals
+- initializeCarousel() — Splide carousels
+- initializeEventListeners() — attach UI handlers
+- initializeFilters(), applyFilters(), sortNfts() — filter & sort logic
+- loadNftGrid(), loadMoreNfts(), createNftCard() — grid rendering
+- openPurchaseModal(), confirmPurchase(), closePurchaseModal() — purchase flow
+- showSellNftModal(), confirmSell() — sell/list flow
+- showCreateNftModal(), confirmCreateNft() — create flow
+- connectWallet(), disconnectWallet(), handleAccountsChanged(), updateWalletUI() — wallet control
+- Market.simulatePurchaseByMockId(), Market.simulateQuickSellByMockId(), Market.simulateListByMockId() — simulated market functions
+
+---
+If you’d like, I can now:
+- Add inline comments to the top of the primary scripts to explain each function and its contract.
+- Add TypeScript or docblocks for functions to help future developers.
+- Add the author meta tag and visible footer across pages (or a single shared partial).
+
+If you want those changes, tell me which action you prefer and I'll implement it.
+
+---
+End of HOW_WEBSITE_WORKS.txt
+Digital Market — How the website works (Q&A)
+=============================================
+
+Q: What is Digital Market?
+A: Digital Market is a static frontend demo for an NFT marketplace. It's purely client-side (no backend) and uses mock data defined in `data.js`. The project includes pages to view NFTs, token details, profiles, wallet interactions, drops, and activity.
+
+Q: How do I run the site locally?
+A:
+- The simplest way is to open `index.html` in your browser directly (double click). For some features (like fetching assets), using a local server is recommended:
+  - Python 3 built-in server (PowerShell):
+    python -m http.server 8000
+  - Or use Node's `npx serve`:
+    npx serve -l 3000 .
+
+Q: Where is the data kept? How does the demo store state?
+A: The mock NFT dataset is in `data.js`. The Market state (balance, listings, activity, inventory) is persisted to browser localStorage under the key `nftMarketState`. When users create or change NFTs, the project saves the updated `mockNftData` to localStorage under `nftData`.
+
+Q: What are the key files and what do they do?
+A: High-level files:
+- `index.html`/`index.js`: Main marketplace listing page and grid.
+- `main.js`: Full-featured app logic (larger codebase) — initializes the site, integrates MetaMask, carousel, particles, filters, modals, and NFT cards.
+- `market.js`: Simulated market logic (uses localStorage). Important functions include `Market.init`, `Market.getState`, `Market.saveState`, `Market.simulatePurchaseByMockId`, `Market.simulateQuickSellByMockId`, and `Market.simulateListByMockId`.
+- `details.js`: NFT details page logic — loads NFT by ID, populates page, sets up price chart and purchase flow.
+- `profile.js`: Profile page UI and data (collected / created / favorited NFTs) and tab handling.
+- `wallet.js`: Handles wallet connection (MetaMask) events, `connectWallet`, `disconnectWallet`, `updateWalletUI`, and dispatches `walletConnected` events.
+- `data.js`: The mock dataset for NFTs used across the app.
+- `README.md`: Project description and author info (Amit Kadam) added.
+- `HOW_WEBSITE_WORKS.txt`: This file — Q&A about the system.
+
+Q: How does connecting a wallet work?
+A:
+- The wallet integration is simulated through `wallet.js` and uses the Provider API if MetaMask is available (window.ethereum). Key functions:
+  - `connectWallet()` - request `eth_requestAccounts`, sets `currentAccount` and emits `walletConnected` event.
+  - `disconnectWallet()` - clears `currentAccount`, hides wallet info, emits `walletDisconnected` event.
+  - `handleAccountsChanged(accounts)` - responds to MetaMask account switches.
+  - `updateWalletUI()` - updates UI elements on connect/disconnect.
+
+Q: How can I test buy, sell, and create flows?
+A:
+- Buying an NFT: Click 'Buy Now' on a token card -> opens purchase modal -> 'Confirm Purchase' triggers a call to `Market.simulatePurchaseByMockId(nft.id)` which updates `nftData` and the market state.
+- Selling/listing an NFT: Click 'Sell' or 'List for Sale' -> opens the sell modal -> `Market.simulateListByMockId(nft.id, price)` lists the NFT and updates the NFT's `price` and `status`.
+- Quick Sell: If available on a card, it calls `Market.simulateQuickSellByMockId(nft.id)` which instantly sells and updates balance & listing.
+- Create NFT: Open 'Create NFT' modal -> `confirmCreateNft()` collects form data (name, collection, price, description, image) and appends a new NFT to `mockNftData`, saves `nftData` to localStorage, and rerenders the grid.
+
+Q: Which UI interactions are animated or enhanced?
+A:
+- Particle background: implemented with p5.js (functions `initializeParticles()` in `main.js`/`index.js`).
+- Carousels: implemented using Splide (`initializeCarousel()`)
+- Animations: `anime.js` is used for entrance and modal animations.
+- Price chart: ECharts on the detail page (`initializePriceChart()` in `details.js`).
+
+Q: What events are published or used between files?
+A:
+- `walletConnected` — dispatched when the wallet is connected (used for updating UI and data in other scripts).
+- `walletDisconnected` — when wallet disconnection occurs.
+- `nftPurchased` — Market dispatches this event after simulated purchases to let other parts of the UI update.
+
+Q: Where are filters and sorting implemented?
+A: Filters and sorting are applied in `index.js`/`main.js`:
+- `applyFilters()` collects checked filters and the price range and filters `mockNftData`.
+- `sortNfts()` sorts `filteredNftData` with options like `recent`, `popular`, `price-low`, `price-high`, `trending`.
+
+Q: How are NFT cards generated?
+A: `createNftCard(nft)` builds the DOM node for each NFT with controls depending on ownership and status. It adds handlers for Buy Now, Quick Sell, Sell, Auction, Offers, and Delete actions.
+
+Q: Where is ownership and balance simulated?
+A: The Market state (balance, inventory, listings, activity) is kept in `Market.initialState` and persisted to `localStorage` under `nftMarketState`. This is purely a demo; no real funds or chain transactions are executed.
+
+Q: How is the NFT owner determined?
+A: Each NFT object has `owner` and `creator` fields. When a user connects their wallet, `currentAccount` is set and the code checks ownership by comparing `nft.owner === currentAccount`. If connected and the current account equals an NFT's owner, the UI reflects that (Sell buttons, 'You own this NFT').
+
+Q: How are images and assets handled?
+A: Static assets are in the `resources/` directory. Image references in `data.js` or generated objects are relative paths like `./resources/nft-4.jpg` or data-URLs (for newly created NFTs using the image preview).
+
+Q: What keys are used in localStorage? Which values are persisted?
+A:
+- `nftMarketState` — JSON object with `balance`, `inventory`, `activity`, `listings`.
+- `nftData` — the copy of `mockNftData` after any create/delete/list/ownership changes.
+- `fakeBalance` — fallback demo balance if Market is not loaded (rare fallback usage).
+
+Q: What should I know about the code design / pitfalls?
+A:
+- The project is deliberately simple and not production-ready. There is repetition between `main.js` and `index.js` — both initialize components. If you refactor, consider centralizing shared functions in a utility file.
+- Wallet function assumes MetaMask (`window.ethereum`) available. If not present, users will see alerts and can use dev balance.
+- The Market functions simulate chain behavior; to incorporate a real backend, replace `Market.simulate*` calls with API calls / Web3/Ethers transactions and handle results.
+
+explain the site and major functions.
+
+Q: How can I extend or test features?
+A:
+- Add/update NFTs in `data.js` or via UI with `Create NFT`.
+- Edit `Market.initialState` in `market.js` to test balances.
+- Implement backend integration to convert `Market.*` functions into actual transactions or server calls.
+- Add tests by writing scripts that call and assert results of `Market.getState()`, `Market.simulatePurchaseByMockId()`, and DOM changes.
+
+

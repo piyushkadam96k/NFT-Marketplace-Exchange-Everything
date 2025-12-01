@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Marketplace - Exchange Everything</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            background: #1a1a1a;
+            color: #fafafa;
+            overflow-x: hidden;
+        }
+
+        .hero-bg {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            background: #020617;
+            /* Fallback dark background */
+        }
+
+        /* Vignette overlay for focus */
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, transparent 20%, #000000 140%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        @keyframes auroraFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+
+
+        /* Nebula / cloud overlay to add subtle color movement */
+
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            will-change: transform;
+            transition: transform .18s cubic-bezier(.22, .9, .33, 1);
+        }
+
+        /* Hero improved visuals */
+        .hero-cta-wrap {
+            display: inline-flex;
+            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.02));
+            padding: 0.6rem 0.8rem;
+            border-radius: 999px;
+            /* removed backdrop blur to keep button crisp */
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .hero-cta .btn-primary,
+        .hero-cta .create-nft-btn {
+            padding-left: 2.2rem;
+            padding-right: 2.2rem;
+            font-size: 1.05rem;
+            box-shadow: 0 8px 30px rgba(0, 102, 255, 0.25);
+            transition: transform .24s ease, box-shadow .24s ease;
+            position: relative;
+            overflow: hidden;
+            background-size: 200% 200%;
+            animation: gradientShift 6s ease infinite, pulse 4s ease-in-out infinite;
+        }
+
+        .hero-cta .btn-primary svg,
+        .hero-cta .create-nft-btn svg {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+        }
+
+        .hero-cta .btn-primary:hover,
+        .hero-cta .create-nft-btn:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 16px 40px rgba(0, 102, 255, 0.28);
+        }
+
+        .hero-bg:hover .hero-cta .btn-primary {
+            box-shadow: 0 22px 60px rgba(0, 102, 255, 0.36);
+            filter: brightness(1.06);
+        }
+
+        .hero-bg:hover .hero-cta .create-nft-btn {
+            box-shadow: 0 18px 46px rgba(16, 185, 129, 0.24);
+            filter: brightness(1.045);
+        }
+
+        .hero-sub-text {
+            font-size: 1.125rem;
+            opacity: .95;
+        }
+
+        .hero-float {
+            position: absolute;
+            pointer-events: none;
+            z-index: 3;
+            transform-origin: center;
+            transition: transform .28s cubic-bezier(.25, .8, .25, 1);
+        }
+
+        .hero-float img {
+            display: block;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        /* Floating mini-thumbnails */
+        @keyframes floaty {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-12px) translateX(8px) rotate(2deg);
+            }
+
+            100% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+            }
+        }
+
+        .hero-float.f1 {
+            animation: floaty 6s ease-in-out infinite;
+            left: 3%;
+            top: 20%;
+        }
+
+        .hero-float.f2 {
+            animation: floaty 5s ease-in-out infinite;
+            right: 10%;
+            top: 8%;
+            transform: rotate(4deg);
+        }
+
+        .hero-float.f3 {
+            animation: floaty 7s ease-in-out infinite;
+            left: 18%;
+            bottom: 10%;
+            transform: rotate(-4deg);
+        }
+
+        /* Hover / Interact: scale thumbnails slightly and add tilt */
+        .hero-bg:hover .hero-float.f1 {
+            transform: translateY(-6px) scale(1.08) rotate(-3deg);
+        }
+
+        .hero-bg:hover .hero-float.f2 {
+            transform: translateY(-8px) scale(1.12) rotate(6deg);
+        }
+
+        .hero-bg:hover .hero-float.f3 {
+            transform: translateY(-10px) scale(1.1) rotate(-6deg);
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+            mix-blend-mode: overlay;
+            opacity: 0;
+            transition: opacity .28s ease;
+        }
+
+        .btn-primary:hover::after {
+            opacity: 1;
+        }
+
+        .scroll-indicator {
+            display: inline-block;
+            margin-top: 1rem;
+            color: #cbd5e1;
+            opacity: 0.9;
+            font-size: .9rem;
+        }
+
+        /* extra animations */
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes bgMove {
+            0% {
+                background-position: center top;
+            }
+
+            50% {
+                background-position: center 20px;
+            }
+
+            100% {
+                background-position: center top;
+            }
+        }
+
+        @keyframes nebulaShift {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: .9
+            }
+
+            50% {
+                transform: translateY(-18px) scale(1.03);
+                opacity: .95
+            }
+
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: .9
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            60% {
+                transform: scale(1.02);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .btn-primary {
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .scroll-indicator {
+            animation: bounce 2.5s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(6px);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .hero-float {
+                display: none;
+            }
+
+            .hero-cta-wrap {
+                padding: 0.35rem 0.5rem;
+            }
+
+            .hero-sub-text {
+                font-size: 1rem;
+            }
+
+            .hero-bg {
+                min-height: 70vh;
+            }
+        }
+
+        /* Respect user 'reduce motion' preferences */
+        @media (prefers-reduced-motion: reduce) {
+
+            .hero-cta .btn-primary,
+            .hero-cta .create-nft-btn {
+                animation: none !important;
+                transition: none !important;
+            }
+
+            .hero-float {
+                animation: none !important;
+                transition: none !important;
+            }
+
+            .hero-bg::after {
+                animation: none !important;
+            }
+
+            .scroll-indicator {
+                animation: none !important;
+            }
+
+            #particles-canvas {
+                opacity: 0.12 !important;
+            }
+        }
+
+        .gradient-text {
+            background: linear-gradient(45deg, #0066ff, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nft-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .nft-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 102, 255, 0.2);
+            border-color: rgba(0, 102, 255, 0.3);
+        }
+
+        .nft-card img {
+            transition: transform 0.3s ease;
+        }
+
+        .nft-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .filter-sidebar {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .price-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .price-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #0066ff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0066ff, #0052cc);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 102, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(0, 102, 255, 0.3);
+        }
+
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: #0066ff;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #0066ff;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .wallet-connected {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .trending-token {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .trending-token:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(0, 102, 255, 0.3);
+        }
+
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            /* visible overlay with particles above background but below content */
+            opacity: 0.85;
+            /* make particles more visible */
+            pointer-events: none;
+        }
+
+        /* attract app (framer) - sits above background but below content */
+        #attract-app {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: auto;
+        }
+
+        #attract-app canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: none;
+        }
+
+        #attract-app .attract-buttons {
+            position: absolute;
+            width: 100%;
+            bottom: 15px;
+            z-index: 40;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            pointer-events: auto;
+        }
+
+        #dev-topup-floating button {
+            border: none;
+        }
+
+        @media (max-width:640px) {
+            #dev-topup-floating {
+                right: 50%;
+                transform: translateX(50%);
+                bottom: 12px;
+            }
+        }
+
+        #attract-app .attract-buttons button,
+        #attract-app .attract-buttons a {
+            color: #08121a;
+            font-size: 13px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            padding: 7px 10px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        @media (max-width:640px) {
+            #attract-app .attract-buttons {
+                bottom: 8px;
+                gap: 8px
+            }
+        }
+
+        .loading-skeleton {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .modal {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .splide__arrow {
+            background: rgba(0, 102, 255, 0.8);
+            border: none;
+        }
+
+        .splide__arrow:hover {
+            background: #0066ff;
+        }
+
+        .price-positive {
+            color: #10b981;
+        }
+
+        .price-negative {
+            color: #ef4444;
+        }
+
+        .create-nft-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            transition: all 0.3s ease;
+        }
+
+        .create-nft-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .sell-nft-btn {
+            background: rgba(239, 68, 68, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .sell-nft-btn:hover {
+            background: rgba(239, 68, 68, 1);
+            transform: translateY(-1px);
+        }
+
+        .new-badge {
+            background: #10b981;
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+
+        .trending-badge {
+            background: #f59e0b;
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+
+        .owned-badge {
+            background: #0066ff;
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-black border-b border-white border-opacity-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <a href="index.html" class="text-2xl font-bold text-[#0088ff]">NFTMarket</a>
+                    <div class="hidden md:flex space-x-6">
+                        <a href="index.html"
+                            class="nav-link text-gray-300 hover:text-white transition-colors">Discover</a>
+                        <a href="collections.html"
+                            class="nav-link text-gray-300 hover:text-white transition-colors">Collections</a>
+                        <a href="tokens.html"
+                            class="nav-link text-gray-300 hover:text-white transition-colors">Tokens</a>
+                        <a href="drops.html" class="nav-link text-gray-300 hover:text-white transition-colors">Drops</a>
+                        <a href="activity.html"
+                            class="nav-link text-gray-300 hover:text-white transition-colors">Activity</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:block relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <input type="text" placeholder="Search NFTs, collections..."
+                            class="bg-[#1a1a1a] border border-transparent rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:bg-[#252525] w-64 transition-colors">
+                    </div>
+                    <button id="connectWallet"
+                        class="bg-[#1a1a1a] hover:bg-[#252525] border border-white border-opacity-10 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300">
+                        Connect Wallet
+                    </button>
+                    <!-- Dev top-up button moved to floating button -->
+
+                    <div id="walletInfo"
+                        class="hidden wallet-connected bg-[#1a1a1a] border border-white border-opacity-10 px-4 py-2 rounded-lg flex items-center space-x-3">
+                        <span id="walletBalance" class="text-[#00ff00] font-mono font-medium">0.00 ETH</span>
+                        <span class="text-gray-600">|</span>
+                        <div id="walletAddress" class="text-white font-mono"></div>
+                    </div>
+                    <a href="https://github.com/amitkadam96k" target="_blank"
+                        class="hidden md:block text-white hover:text-gray-300 transition-colors duration-300">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    <!-- Mobile Menu Button -->
+                    <button id="mobileMenuBtn" class="md:hidden text-white focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu"
+            class="hidden md:hidden bg-black bg-opacity-95 absolute top-16 left-0 right-0 border-b border-white border-opacity-10 p-4">
+            <div class="flex flex-col space-y-4">
+                <a href="index.html" class="text-white hover:text-[#0088ff] font-medium">Discover</a>
+                <a href="collections.html" class="text-white hover:text-[#0088ff] font-medium">Collections</a>
+                <a href="tokens.html" class="text-white hover:text-[#0088ff] font-medium">Tokens</a>
+                <a href="drops.html" class="text-white hover:text-[#0088ff] font-medium">Drops</a>
+                <a href="activity.html" class="text-white hover:text-[#0088ff] font-medium">Activity</a>
+                <input type="text" placeholder="Search..."
+                    class="bg-[#1a1a1a] border border-transparent rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:bg-[#252525] w-full">
+                <button id="connectWalletMobile"
+                    class="bg-[#1a1a1a] border border-white border-opacity-10 text-white w-full py-2 rounded-lg font-medium">
+                    Connect Wallet
+                </button>
+                <!-- Mobile Menu Items -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg pt-24 pb-20">
+        <canvas id="hero-canvas"
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;"></canvas>
+
+        <div class="hero-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-5xl md:text-7xl font-bold mb-6">
+                    Exchange <span class="gradient-text">Everything</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto hero-sub-text">
+                    Discover, collect, and trade extraordinary NFTs on the world's premier digital marketplace
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center hero-cta-wrap hero-cta">
+                    <button class="btn-primary px-8 py-4 rounded-lg font-semibold text-white text-lg">
+                        <svg viewBox="0 0 24 24" fill="none" class="mr-2" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12h14M12 5l7 7-7 7" stroke="#fff" stroke-width="1.6" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                        Explore NFTs
+                    </button>
+                    <button id="createNftBtn"
+                        class="create-nft-btn px-8 py-4 rounded-lg font-semibold text-white text-lg">
+                        <svg viewBox="0 0 24 24" fill="none" class="mr-2" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="1.6" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                        Create NFT
+                    </button>
+                </div>
+                <div class="mt-6">
+                    <div class="scroll-indicator">Scroll to discover trends ↓</div>
+                </div>
+
+                <!-- Attraction Cursor Controls -->
+                <div class="buttons relative z-10 mt-5 flex justify-center items-center gap-4 flex-wrap">
+                    <button type="button" id="colors-btn" aria-label="Randomize particle colors"
+                        class="text-black font-sans text-xs no-underline bg-white/50 rounded border border-gray-500 px-2 py-1 cursor-pointer hover:bg-white/70 transition-colors">
+                        Random colors
+                    </button>
+                    <button type="button" id="random-btn" aria-pressed="false"
+                        class="text-black font-sans text-xs no-underline bg-white/50 rounded border border-gray-500 px-2 py-1 cursor-pointer hover:bg-white/70 transition-colors">Random
+                        movement: ON</button>
+
+                    <div class="flex items-center bg-white/80 p-1 px-2 rounded border border-black/10">
+                        <label for="speed-range" class="text-xs text-black mr-1.5">Speed</label>
+                        <input id="speed-range" type="range" min="0.05" max="1.0" step="0.05" value="0.5"
+                            class="w-[100px]" aria-label="Random movement speed" />
+                    </div>
+
+                    <div class="flex items-center bg-white/80 p-1 px-2 rounded border border-black/10">
+                        <label for="star-speed-range" class="text-xs text-black mr-1.5">Star
+                            speed</label>
+                        <input id="star-speed-range" type="range" min="0.01" max="1.0" step="0.01" value="0.15"
+                            class="w-[100px]" aria-label="Star/particle speed" />
+                        <span id="star-speed-value"
+                            class="text-xs min-w-[36px] inline-block text-center text-black">0.15</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Collections Carousel -->
+    <section class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold mb-8 gradient-text">Featured Collections</h2>
+            <div class="splide" id="featured-carousel">
+                <div class="splide__track">
+                    <ul class="splide__list">
+                        <li class="splide__slide">
+                            <div class="nft-card rounded-xl overflow-hidden">
+                                <img src="./resources/nft-1.jpg" alt="CryptoPunks" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="font-semibold text-lg mb-2">CryptoPunks Elite</h3>
+                                    <p class="text-gray-400 text-sm mb-3">10,000 unique collectible characters</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-blue-400 font-semibold">Floor: 24.5 ETH</span>
+                                        <span class="text-green-400 text-sm">+12.5%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="splide__slide">
+                            <div class="nft-card rounded-xl overflow-hidden">
+                                <img src="./resources/nft-2.jpg" alt="Azuki" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="font-semibold text-lg mb-2">Azuki Legends</h3>
+                                    <p class="text-gray-400 text-sm mb-3">Anime-inspired digital art collection</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-blue-400 font-semibold">Floor: 8.2 ETH</span>
+                                        <span class="text-green-400 text-sm">+8.1%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="splide__slide">
+                            <div class="nft-card rounded-xl overflow-hidden">
+                                <img src="./resources/nft-3.jpg" alt="Polygon NFT" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="font-semibold text-lg mb-2">Polygon Masters</h3>
+                                    <p class="text-gray-400 text-sm mb-3">High-performance blockchain art</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-blue-400 font-semibold">Floor: 2.1 ETH</span>
+                                        <span class="text-red-400 text-sm">-2.3%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="splide__slide">
+                            <div class="nft-card rounded-xl overflow-hidden">
+                                <img src="./resources/nft-4.jpg" alt="NFT Collection" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="font-semibold text-lg mb-2">Digital Dreams</h3>
+                                    <p class="text-gray-400 text-sm mb-3">Abstract digital art collection</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-blue-400 font-semibold">Floor: 1.8 ETH</span>
+                                        <span class="text-green-400 text-sm">+15.7%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- New NFTs Carousel -->
+    <section class="py-16 bg-white bg-opacity-5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold mb-8 gradient-text">New NFTs</h2>
+            <div class="splide" id="new-nfts-carousel">
+                <div class="splide__track">
+                    <ul class="splide__list">
+                        <li class="splide__slide">
+                            <div class="nft-card rounded-xl overflow-hidden">
+                                <img src="./resources/nft-21.png" alt="New NFT" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="font-semibold mb-1">Pixel Warrior #101</h3>
+                                    <p class="text-gray-400 text-sm mb-2">Pixel Warriors</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-blue-400 font-semibold mono">1.5 ETH</span>
+                                        <span class="new-badge">NEW</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="splide__slide">
+                            <div class="nft-card rounded-xl overflow-hidden">
+                                <img src="./resources/nft-22.jpeg" alt="New NFT" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="font-semibold mb-1">Abstract Mind #77</h3>
+                                    <p class="text-gray-400 text-sm mb-2">Abstract Minds</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-blue-400 font-semibold mono">3.2 ETH</span>
+                                        <span class="new-badge">NEW</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="splide__slide">
+                            <div class="nft-card rounded-xl overflow-hidden">
+                                <img src="./resources/nft-29.png" alt="New NFT" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="font-semibold mb-1">3D Masterpiece #56</h3>
+                                    <p class="text-gray-400 text-sm mb-2">3D Masterpieces</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-blue-400 font-semibold mono">6.4 ETH</span>
+                                        <span class="new-badge">NEW</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="splide__slide">
+                            <div class="nft-card rounded-xl overflow-hidden">
+                                <img src="./resources/nft-32.png" alt="New NFT" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="font-semibold mb-1">Music Beat #89</h3>
+                                    <p class="text-gray-400 text-sm mb-2">Music Beats</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-blue-400 font-semibold mono">2.4 ETH</span>
+                                        <span class="new-badge">NEW</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="splide__slide">
+                            <div class="nft-card rounded-xl overflow-hidden">
+                                <img src="./resources/nft-36.jpg" alt="New NFT" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="font-semibold mb-1">Digital Artist Pro #88</h3>
+                                    <p class="text-gray-400 text-sm mb-2">Digital Artist Pro</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-blue-400 font-semibold mono">4.1 ETH</span>
+                                        <span class="new-badge">NEW</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trending NFTs Carousel -->
+    <section class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold mb-8 gradient-text">Trending NFTs</h2>
+            <div class="splide" id="trending-nfts-carousel">
+                <div class="splide__track">
+                    <ul class="splide__list">
+                        <li class="splide__slide">
+                            <div class="nft-card rounded-xl overflow-hidden">
+                                <img src="./resources/nft-1.jpg" alt="Trending NFT" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="font-semibold mb-1">CryptoPunk #7804</h3>
+                                    <p class="text-gray-400 text-sm mb-2">CryptoPunks</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-blue-400 font-semibold mono">24.5 ETH</span>
+                                        <span class="trending-badge">🔥 TRENDING</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="splide__slide">
+                            <div class="nft-card rounded-xl overflow-hidden">
+                                <img src="./resources/nft-2.jpg" alt="Trending NFT" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="font-semibold mb-1">Azuki #4521</h3>
+                                    <p class="text-gray-400 text-sm mb-2">Azuki</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-blue-400 font-semibold mono">8.2 ETH</span>
+                                        <span class="trending-badge">🔥 TRENDING</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="splide__slide">
+                            <div class="nft-card rounded-xl overflow-hidden">
+                                <img src="./resources/nft-18.jpg" alt="Trending NFT" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="font-semibold mb-1">Moonbird Mystic #445</h3>
+                                    <p class="text-gray-400 text-sm mb-2">Moonbird Mystics</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-blue-400 font-semibold mono">16.8 ETH</span>
+                                        <span class="trending-badge">🔥 TRENDING</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="splide__slide">
+                            <div class="nft-card rounded-xl overflow-hidden">
+                                <img src="./resources/nft-26.jpg" alt="Trending NFT" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="font-semibold mb-1">Celebrity Star #99</h3>
+                                    <p class="text-gray-400 text-sm mb-2">Celebrity Stars</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-blue-400 font-semibold mono">12.3 ETH</span>
+                                        <span class="trending-badge">🔥 TRENDING</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="splide__slide">
+                            <div class="nft-card rounded-xl overflow-hidden">
+                                <img src="./resources/nft-37.png" alt="Trending NFT" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="font-semibold mb-1">Gaming Legend #99</h3>
+                                    <p class="text-gray-400 text-sm mb-2">Gaming Legends</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-blue-400 font-semibold mono">7.3 ETH</span>
+                                        <span class="trending-badge">🔥 TRENDING</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Filter Sidebar -->
+                <div class="lg:w-1/4">
+                    <button id="toggleFiltersBtn"
+                        class="lg:hidden w-full btn-secondary py-3 rounded-lg font-medium mb-4 flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
+                            </path>
+                        </svg>
+                        Show Filters
+                    </button>
+                    <div id="filterSidebar" class="filter-sidebar rounded-xl p-6 sticky top-24 hidden lg:block">
+                        <h3 class="text-xl font-semibold mb-6">Filters</h3>
+
+                        <!-- Status Filter -->
+                        <div class="mb-6">
+                            <h4 class="font-medium mb-3">Status</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="status-filter mr-3" value="buy-now" checked>
+                                    <span>Buy Now</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="status-filter mr-3" value="auction">
+                                    <span>On Auction</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="status-filter mr-3" value="new">
+                                    <span>New</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="status-filter mr-3" value="offers">
+                                    <span>Has Offers</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="mb-6">
+                            <h4 class="font-medium mb-3">Price Range</h4>
+                            <div class="space-y-3">
+                                <input type="range" id="priceRange" class="price-slider w-full" min="0" max="100"
+                                    value="50">
+                                <div class="flex justify-between text-sm text-gray-400">
+                                    <span>0 ETH</span>
+                                    <span>100+ ETH</span>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <input type="number" placeholder="Min"
+                                        class="w-1/2 bg-white bg-opacity-10 border border-white border-opacity-20 rounded px-3 py-2 text-sm">
+                                    <input type="number" placeholder="Max"
+                                        class="w-1/2 bg-white bg-opacity-10 border border-white border-opacity-20 rounded px-3 py-2 text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Blockchain Filter -->
+                        <div class="mb-6">
+                            <h4 class="font-medium mb-3">Blockchain</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="chain-filter mr-3" value="ethereum" checked>
+                                    <span>Ethereum</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="chain-filter mr-3" value="polygon">
+                                    <span>Polygon</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="chain-filter mr-3" value="solana">
+                                    <span>Solana</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Categories -->
+                        <div class="mb-6">
+                            <h4 class="font-medium mb-3">Categories</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="category-filter mr-3" value="art" checked>
+                                    <span>Art</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="category-filter mr-3" value="gaming">
+                                    <span>Gaming</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="category-filter mr-3" value="music">
+                                    <span>Music</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="category-filter mr-3" value="domains">
+                                    <span>Domain Names</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button class="btn-secondary w-full py-3 rounded-lg font-medium">
+                            Clear Filters
+                        </button>
+                    </div>
+                </div>
+
+                <!-- NFT Grid -->
+                <div class="lg:w-3/4">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">All NFTs</h2>
+                        <select id="sortSelect"
+                            class="bg-white bg-opacity-10 border border-white border-opacity-20 rounded-lg px-4 py-2 text-white">
+                            <option value="recent">Recently Listed</option>
+                            <option value="popular">Most Popular</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="trending">Trending</option>
+                        </select>
+                    </div>
+
+                    <div id="nftGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <!-- NFT cards will be populated by JavaScript -->
+                    </div>
+
+                    <div class="text-center mt-8">
+                        <button id="loadMore" class="btn-secondary px-8 py-3 rounded-lg font-medium">
+                            Load More NFTs
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trending Tokens -->
+    <section class="py-16 bg-white bg-opacity-5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold mb-8 gradient-text">Trending Tokens</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="trending-token rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-semibold">ETH</span>
+                        <span class="text-green-400 text-sm">+2.4%</span>
+                    </div>
+                    <div class="text-2xl font-bold mono">$2,993.84</div>
+                    <div class="text-gray-400 text-sm mt-1">Ethereum</div>
+                </div>
+                <div class="trending-token rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-semibold">BTC</span>
+                        <span class="text-green-400 text-sm">+1.8%</span>
+                    </div>
+                    <div class="text-2xl font-bold mono">$96,420.50</div>
+                    <div class="text-gray-400 text-sm mt-1">Bitcoin</div>
+                </div>
+                <div class="trending-token rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-semibold">SOL</span>
+                        <span class="text-red-400 text-sm">-0.9%</span>
+                    </div>
+                    <div class="text-2xl font-bold mono">$208.34</div>
+                    <div class="text-gray-400 text-sm mt-1">Solana</div>
+                </div>
+                <div class="trending-token rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-semibold">MATIC</span>
+                        <span class="text-green-400 text-sm">+5.2%</span>
+                    </div>
+                    <div class="text-2xl font-bold mono">$0.89</div>
+                    <div class="text-gray-400 text-sm mt-1">Polygon</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black bg-opacity-50 py-12 border-t border-white border-opacity-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold gradient-text mb-4">NFTMarket</div>
+                <p class="text-gray-400 mb-6">The world's premier NFT marketplace</p>
+                <div class="flex justify-center space-x-6 text-sm text-gray-400">
+                    <a href="#" class="hover:text-white">Terms of Service</a>
+                    <a href="#" class="hover:text-white">Privacy Policy</a>
+                    <a href="#" class="hover:text-white">Support</a>
+                    <a href="#" class="hover:text-white">About</a>
+                </div>
+                <div class="mt-6 text-xs text-gray-500">
+                    © 2024 NFTMarket. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Dev Top-up Button (bottom-right for desktop, centered on mobile) -->
+    <div id="dev-topup-floating" style="position:fixed; bottom:18px; right:18px; z-index:60; pointer-events:auto;">
+        <button id="devTopupBtnFloating"
+            class="bg-yellow-400 hover:bg-yellow-300 text-black px-4 py-2 rounded-full shadow-lg">Full Money</button>
+    </div>
+
+    <!-- Purchase Modal -->
+    <div id="purchaseModal" class="modal fixed inset-0 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="modal-content rounded-xl p-6 max-w-md w-full">
+                <div class="text-center">
+                    <h3 class="text-2xl font-bold mb-4">Confirm Purchase</h3>
+                    <div id="modalNftImage" class="w-32 h-32 mx-auto mb-4 rounded-lg overflow-hidden">
+                        <!-- NFT image will be inserted here -->
+                    </div>
+                    <h4 id="modalNftName" class="text-xl font-semibold mb-2"></h4>
+                    <p id="modalNftCollection" class="text-gray-400 mb-2"></p>
+                    <p id="modalNftDescription" class="text-gray-300 text-sm mb-4"></p>
+                    <div class="bg-white bg-opacity-10 rounded-lg p-4 mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span>Price</span>
+                            <span id="modalNftPrice" class="font-semibold"></span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm text-gray-400">
+                            <span>Service Fee</span>
+                            <span>2.5%</span>
+                        </div>
+                        <hr class="border-white border-opacity-20 my-2">
+                        <div class="flex justify-between items-center font-semibold">
+                            <span>Total</span>
+                            <span id="modalTotalPrice"></span>
+                        </div>
+                    </div>
+                    <div class="flex space-x-4">
+                        <button id="cancelPurchase" class="btn-secondary flex-1 py-3 rounded-lg font-medium">
+                            Cancel
+                        </button>
+                        <button id="confirmPurchase" class="btn-primary flex-1 py-3 rounded-lg font-medium">
+                            Confirm Purchase
+                        </button>
+                    </div>
+                    <!-- Transaction Progress (hidden until purchase starts) -->
+                    <div id="txProgress" class="mt-4 hidden">
+                        <div id="txStatus" class="text-sm text-gray-300 mb-2">Preparing transaction...</div>
+                        <div class="w-full bg-white bg-opacity-10 rounded h-2 overflow-hidden">
+                            <div id="txProgressBar" class="h-2 bg-gradient-to-r from-blue-500 to-cyan-400"
+                                style="width: 0%"></div>
+                        </div>
+                        <div id="txHash" class="text-xs text-gray-400 mt-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="market.js"></script>
+    <script src="wallet.js"></script>
+    <script src="index.js"></script>
+    <!-- AttractionCursor Framer-based component (module) -->
+    <script type="module">
+        import AttractionCursor from "https://cdn.jsdelivr.net/npm/threejs-components@0.0.26/build/cursors/attraction1.min.js";
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; // reduced-motion: skip
+            const appEl = document.getElementById('attract-app');
+            const canvas = document.getElementById('attract-canvas');
+            if (!appEl || !canvas) return;
+
+            try {
+                const app = AttractionCursor(canvas, {
+                    particles: { attractionIntensity: 0.75, size: 1.8 },
+                });
+
+                // create a reusable function for changing colors
+                function changeAttractColors() {
+                    if (!app || !app.particles) return;
+                    try {
+                        const newColor1 = Math.floor(Math.random() * 0xffffff);
+                        const newColor2 = Math.floor(Math.random() * 0xffffff);
+                        if (app.particles.light1) app.particles.light1.color.set(newColor1);
+                        if (app.particles.light2) app.particles.light2.color.set(newColor2);
+                        // expose the last generated colors for debugging
+                        window._lastAttractColors = { c1: newColor1, c2: newColor2 };
+                    } catch (e) { console.warn('changeAttractColors failed', e); }
+                }
+
+                // attach to button
+                const btn = document.getElementById('colors-btn-attract');
+                if (btn) {
+                    btn.addEventListener('click', changeAttractColors);
+                }
+                // expose function for debugging or call from other modules
+                window.changeAttractColors = changeAttractColors;
+
+            } catch (err) {
+                console.warn('AttractionCursor failed to init', err);
+            }
+        });
+    </script>
+    <script type="module">
+        import AttractionCursor from "https://cdn.jsdelivr.net/npm/threejs-components@0.0.26/build/cursors/attraction1.min.js"
+
+        const canvas = document.getElementById('hero-canvas')
+
+        if (canvas) {
+            // ensure the canvas is sized to the viewport
+            canvas.setAttribute('aria-hidden', 'true')
+
+            // ensure the canvas internal buffer matches display size to avoid blurring
+            const fitCanvasToDisplaySize = () => {
+                const dpr = window.devicePixelRatio || 1
+                const width = canvas.clientWidth * dpr
+                const height = canvas.clientHeight * dpr
+                if (canvas.width !== width || canvas.height !== height) {
+                    canvas.width = width
+                    canvas.height = height
+                }
+            }
+            fitCanvasToDisplaySize()
+            window.addEventListener('resize', fitCanvasToDisplaySize)
+
+            if (!AttractionCursor) {
+                console.error('AttractionCursor library not available, cursor effects will not run')
+            }
+
+            const app = AttractionCursor(canvas, {
+                particles: {
+                    attractionIntensity: 0.75,
+                    size: 1.5,
+                    // Lower the default max velocity so "stars" move more slowly
+                    maxVelocity: 0.2,
+                },
+            })
+
+            // --- Disable mouse / pointer following (prevent particles from following pointer)
+            // This intercepts pointer/mouse/touch move events so the library can't update its
+            // internal pointer coordinates. If you want to re-enable mouse following later,
+            // call `enablePointerFollow()`.
+            const disablePointerFollow = () => {
+                // store handler so we can remove it later
+                const stopHandler = (e) => {
+                    // block only trusted (user) pointer events. Synthetic/untrusted pointer
+                    // events created by our script have isTrusted = false and will not be
+                    // blocked, which lets us simulate pointer movement algorithmically.
+                    if (e.isTrusted) {
+                        e.stopImmediatePropagation()
+                    }
+                }
+                // add capturing listeners so they run before library handlers
+                document.addEventListener('pointermove', stopHandler, true)
+                document.addEventListener('mousemove', stopHandler, true)
+                document.addEventListener('touchmove', stopHandler, { passive: true, capture: true })
+                // expose for toggling or cleanup
+                app.__pointerBlocker = stopHandler
+            }
+
+            // Call the function to remove pointer follow by default
+            disablePointerFollow()
+
+            // --- Random movement (synthetic pointer) implementation
+            let randomLoopId = null
+            let randomEnabled = false
+
+            // Create a synthetic pointer event targeted to the canvas and the library
+            function dispatchSyntheticPointer(x, y) {
+                if (!canvas) return
+                const rect = canvas.getBoundingClientRect()
+                const clientX = rect.left + (x + 1) / 2 * rect.width
+                const clientY = rect.top + (1 - (y + 1) / 2) * rect.height // invert Y back to client coords
+
+                // Try to set directly on the app if it exposes a pointer property
+                try {
+                    if (app) {
+                        if (typeof app.pointer === 'object' && 'x' in app.pointer) {
+                            app.pointer.x = x
+                            app.pointer.y = y
+                            return
+                        }
+                        if (typeof app.setPointer === 'function') {
+                            app.setPointer({ x, y })
+                            return
+                        }
+                        if (typeof app.updatePointer === 'function') {
+                            app.updatePointer({ x, y })
+                            return
+                        }
+                        if (typeof app._setPointer === 'function') {
+                            app._setPointer({ x, y })
+                            return
+                        }
+                    }
+                } catch (err) {
+                    console.warn('Pointer set attempt failed:', err)
+                }
+
+                // Fall back to dispatching an untrusted PointerEvent
+                const evt = new PointerEvent('pointermove', {
+                    bubbles: true,
+                    cancelable: true,
+                    composed: true,
+                    pointerType: 'mouse',
+                    clientX,
+                    clientY,
+                    isPrimary: true,
+                })
+                canvas.dispatchEvent(evt)
+            }
+
+            // Smooth randomized motion generator (sum of sin waves & jitter)
+            // Adjusted with `randomSpeed` and `randomAmp` variables to control how fast and
+            // how far the synthetic pointer moves. Lower `randomSpeed` slows animation.
+            let randomSpeed = 0.5 // smaller = slower
+            let randomAmp = 0.425 // smaller = less reach (closer to center)
+            function randomPositionAtTime(t) {
+                // t in seconds, scaled by speed
+                const s = t * randomSpeed
+                const x = (Math.sin(s * 0.5) * 0.5 + Math.cos(s * 0.9) * 0.3 + (Math.sin(s * 1.4) * 0.1)) * randomAmp
+                const y = (Math.cos(s * 0.4) * 0.5 + Math.sin(s * 0.8) * 0.25 + (Math.cos(s * 1.2) * 0.1)) * randomAmp
+                return { x: Math.max(-1, Math.min(1, x)), y: Math.max(-1, Math.min(1, y)) }
+            }
+
+            function startRandomMovement() {
+                if (randomEnabled) return
+                randomEnabled = true
+                const start = performance.now()
+                function loop() {
+                    if (!randomEnabled) return
+                    const now = performance.now()
+                    const t = (now - start) / 1000
+                    const pos = randomPositionAtTime(t)
+                    dispatchSyntheticPointer(pos.x, pos.y)
+                    randomLoopId = requestAnimationFrame(loop)
+                }
+                loop()
+            }
+
+            // Start random movement by default
+            startRandomMovement()
+
+            // --- Button Event Listeners ---
+            const button1 = document.getElementById('colors-btn')
+            if (button1) {
+                button1.addEventListener('click', () => {
+                    const p = app && app.particles
+                    if (p && p.light1 && p.light2 && p.light1.color && p.light2.color) {
+                        p.light1.color.set(Math.random() * 0xffffff)
+                        p.light2.color.set(Math.random() * 0xffffff)
+                    } else {
+                        console.warn('Particles or lights not ready yet')
+                    }
+                })
+            }
+
+            const randomBtn = document.getElementById('random-btn')
+            if (randomBtn) {
+                randomBtn.addEventListener('click', () => {
+                    if (!randomEnabled) {
+                        startRandomMovement()
+                        randomBtn.setAttribute('aria-pressed', 'true')
+                        randomBtn.textContent = 'Random movement: ON'
+                    } else {
+                        randomEnabled = false
+                        if (randomLoopId) {
+                            cancelAnimationFrame(randomLoopId)
+                            randomLoopId = null
+                        }
+                        randomBtn.setAttribute('aria-pressed', 'false')
+                        randomBtn.textContent = 'Random movement: OFF'
+                    }
+                })
+                // Initialize button state
+                randomBtn.setAttribute('aria-pressed', 'true')
+                randomBtn.textContent = 'Random movement: ON'
+            }
+
+            const speedRange = document.getElementById('speed-range')
+            if (speedRange) {
+                speedRange.addEventListener('input', (ev) => {
+                    const v = parseFloat(ev.target.value)
+                    if (!isNaN(v)) {
+                        randomSpeed = v
+                        randomAmp = Math.min(0.8, Math.max(0.05, v * 0.85))
+                    }
+                })
+            }
+
+            const starSpeedRange = document.getElementById('star-speed-range')
+            const starSpeedValue = document.getElementById('star-speed-value')
+
+            function setParticleMaxVelocity(v) {
+                if (!app) return
+                const p = app.particles
+                if (!p) return
+                try {
+                    if ('maxVelocity' in p) {
+                        p.maxVelocity = v
+                    } else if (p.uniforms && p.uniforms.maxVelocity) {
+                        p.uniforms.maxVelocity.value = v
+                    } else if (p.uniforms && p.uniforms['maxVelocity']) {
+                        p.uniforms['maxVelocity'].value = v
+                    } else if (p.setUniform) {
+                        p.setUniform('maxVelocity', v)
+                    }
+                } catch (err) {
+                    console.warn('Unable to set particle maxVelocity:', err)
+                }
+            }
+
+            if (starSpeedRange) {
+                starSpeedRange.addEventListener('input', (ev) => {
+                    const v = parseFloat(ev.target.value)
+                    if (!isNaN(v)) {
+                        if (starSpeedValue) starSpeedValue.textContent = v.toFixed(2)
+                        setParticleMaxVelocity(v)
+                    }
+                })
+                // apply the initial default
+                setParticleMaxVelocity(parseFloat(starSpeedRange.value || 0.15))
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - NFTMarket</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            background: #1a1a1a;
+            color: #fafafa;
+        }
+
+        .gradient-text {
+            background: linear-gradient(45deg, #0066ff, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .profile-header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0066ff, #0052cc);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 102, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(0, 102, 255, 0.3);
+        }
+
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: #0066ff;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #0066ff;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .wallet-connected {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .tab-button {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-button.active {
+            color: #0066ff;
+            border-bottom-color: #0066ff;
+        }
+
+        .tab-button:hover {
+            color: #0066ff;
+        }
+
+        .nft-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .nft-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 102, 255, 0.15);
+            border-color: rgba(0, 102, 255, 0.3);
+        }
+
+        .activity-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-black border-b border-white border-opacity-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <a href="index.html" class="text-2xl font-bold text-[#0088ff]">NFTMarket</a>
+                    <div class="hidden md:flex space-x-6">
+                        <a href="index.html"
+                            class="nav-link text-gray-300 hover:text-white transition-colors">Discover</a>
+                        <a href="collections.html"
+                            class="nav-link text-gray-300 hover:text-white transition-colors">Collections</a>
+                        <a href="tokens.html"
+                            class="nav-link text-gray-300 hover:text-white transition-colors">Tokens</a>
+                        <a href="drops.html" class="nav-link text-gray-300 hover:text-white transition-colors">Drops</a>
+                        <a href="activity.html"
+                            class="nav-link text-gray-300 hover:text-white transition-colors">Activity</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:block relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <input type="text" placeholder="Search NFTs, collections..."
+                            class="bg-[#1a1a1a] border border-transparent rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:bg-[#252525] w-64 transition-colors">
+                    </div>
+                    <button id="connectWallet"
+                        class="bg-[#1a1a1a] hover:bg-[#252525] border border-white border-opacity-10 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300">
+                        Connect Wallet
+                    </button>
+
+                    <div id="walletInfo"
+                        class="hidden wallet-connected bg-[#1a1a1a] border border-white border-opacity-10 px-4 py-2 rounded-lg flex items-center space-x-3">
+                        <span id="walletBalance" class="text-[#00ff00] font-mono font-medium">0.00 ETH</span>
+                        <span class="text-gray-600">|</span>
+                        <div id="walletAddress" class="text-white font-mono"></div>
+                    </div>
+                    <a href="https://github.com/amitkadam96k" target="_blank"
+                        class="hidden md:block text-white hover:text-gray-300 transition-colors duration-300">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    <!-- Mobile Menu Button -->
+                    <button id="mobileMenuBtn" class="md:hidden text-white focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu"
+            class="hidden md:hidden bg-black bg-opacity-95 absolute top-16 left-0 right-0 border-b border-white border-opacity-10 p-4">
+            <div class="flex flex-col space-y-4">
+                <a href="index.html" class="text-white hover:text-[#0088ff] font-medium">Discover</a>
+                <a href="collections.html" class="text-white hover:text-blue-400 font-medium">Collections</a>
+                <a href="tokens.html" class="text-white hover:text-blue-400 font-medium">Tokens</a>
+                <a href="drops.html" class="text-white hover:text-blue-400 font-medium">Drops</a>
+                <a href="activity.html" class="text-white hover:text-blue-400 font-medium">Activity</a>
+                <input type="text" placeholder="Search..."
+                    class="bg-white bg-opacity-10 border border-white border-opacity-20 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-400 w-full">
+                <button id="connectWalletMobile" class="btn-primary w-full py-2 rounded-lg font-medium text-white">
+                    Connect Wallet
+                </button>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- Profile Header -->
+    <div class="pt-24 pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="profile-header rounded-xl p-8">
+                <div class="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
+                    <div class="relative">
+                        <img src="./resources/nft-1.jpg" alt="Profile Avatar"
+                            class="w-32 h-32 rounded-full border-4 border-white border-opacity-20">
+                        <button
+                            class="absolute bottom-2 right-2 bg-blue-500 rounded-full p-2 text-white hover:bg-blue-600 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="flex-1 text-center md:text-left">
+                        <h1 class="text-3xl font-bold mb-2">CryptoCollector</h1>
+                        <p class="text-gray-400 mb-4 mono">0x742d35Cc6634C0532925a3b8D4C0C8b3C</p>
+                        <p class="text-gray-300 mb-6 max-w-2xl">
+                            Passionate NFT collector and digital art enthusiast. Building the future of digital
+                            ownership, one pixel at a time.
+                        </p>
+
+                        <div class="flex flex-wrap justify-center md:justify-start gap-4 mb-6">
+                            <button class="btn-secondary px-4 py-2 rounded-lg text-sm flex items-center space-x-2">
+                                <span>🌐</span>
+                                <span>Website</span>
+                            </button>
+                            <button class="btn-secondary px-4 py-2 rounded-lg text-sm flex items-center space-x-2">
+                                <span>🐦</span>
+                                <span>Twitter</span>
+                            </button>
+                            <button class="btn-secondary px-4 py-2 rounded-lg text-sm flex items-center space-x-2">
+                                <span>💬</span>
+                                <span>Discord</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col space-y-4">
+                        <button class="btn-primary px-6 py-3 rounded-lg font-medium">Follow</button>
+                        <button class="btn-secondary px-6 py-3 rounded-lg font-medium">Share Profile</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="stat-card rounded-xl p-6 text-center">
+                    <div class="text-2xl font-bold mono text-blue-400">127</div>
+                    <div class="text-sm text-gray-400">Collected</div>
+                </div>
+                <div class="stat-card rounded-xl p-6 text-center">
+                    <div class="text-2xl font-bold mono text-green-400">15</div>
+                    <div class="text-sm text-gray-400">Created</div>
+                </div>
+                <div class="stat-card rounded-xl p-6 text-center">
+                    <div class="text-2xl font-bold mono text-purple-400">89</div>
+                    <div class="text-sm text-gray-400">Favorited</div>
+                </div>
+                <div class="stat-card rounded-xl p-6 text-center">
+                    <div class="text-2xl font-bold mono text-yellow-400">2.4K</div>
+                    <div class="text-sm text-gray-400">Followers</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Charts -->
+    <div class="pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Portfolio Value -->
+                <div class="bg-[#1a1a1a] border border-white border-opacity-10 rounded-xl p-6">
+                    <h3 class="text-lg font-bold mb-4">Portfolio Value</h3>
+                    <div id="portfolioChart" class="w-full h-64"></div>
+                </div>
+                <!-- Activity -->
+                <div class="bg-[#1a1a1a] border border-white border-opacity-10 rounded-xl p-6">
+                    <h3 class="text-lg font-bold mb-4">Activity Volume</h3>
+                    <div id="activityChart" class="w-full h-64"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="border-b border-white border-opacity-10">
+                <nav class="flex space-x-8">
+                    <button class="tab-button active py-4 px-2 font-medium" data-tab="collected">
+                        Collected
+                    </button>
+                    <button class="tab-button py-4 px-2 font-medium" data-tab="created">
+                        Created
+                    </button>
+                    <button class="tab-button py-4 px-2 font-medium" data-tab="favorited">
+                        Favorited
+                    </button>
+                    <button class="tab-button py-4 px-2 font-medium" data-tab="activity">
+                        Activity
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Collected Tab -->
+            <div id="collected" class="tab-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Collected NFTs</h2>
+                    <div class="flex space-x-4">
+                        <select
+                            class="bg-white bg-opacity-10 border border-white border-opacity-20 rounded-lg px-4 py-2 text-white">
+                            <option>Recently Added</option>
+                            <option>Price: Low to High</option>
+                            <option>Price: High to Low</option>
+                            <option>Most Liked</option>
+                        </select>
+                        <div class="flex bg-white bg-opacity-10 rounded-lg p-1">
+                            <button class="px-3 py-2 rounded bg-white bg-opacity-20">Grid</button>
+                            <button class="px-3 py-2 rounded">List</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div class="nft-card rounded-xl overflow-hidden">
+                        <img src="./resources/nft-1.jpg" alt="NFT" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-semibold mb-1">CryptoPunk #7804</h3>
+                            <p class="text-gray-400 text-sm mb-2">CryptoPunks</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-blue-400 font-semibold mono">24.5 ETH</span>
+                                <span class="text-green-400 text-sm">+12.5%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nft-card rounded-xl overflow-hidden">
+                        <img src="./resources/nft-2.jpg" alt="NFT" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-semibold mb-1">Azuki #4521</h3>
+                            <p class="text-gray-400 text-sm mb-2">Azuki</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-blue-400 font-semibold mono">8.2 ETH</span>
+                                <span class="text-green-400 text-sm">+8.1%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nft-card rounded-xl overflow-hidden">
+                        <img src="./resources/nft-7.jpg" alt="NFT" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-semibold mb-1">Moonbird #892</h3>
+                            <p class="text-gray-400 text-sm mb-2">Moonbirds</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-blue-400 font-semibold mono">12.3 ETH</span>
+                                <span class="text-red-400 text-sm">-3.2%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nft-card rounded-xl overflow-hidden">
+                        <img src="./resources/nft-11.jpg" alt="NFT" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-semibold mb-1">Crypto Punkette #156</h3>
+                            <p class="text-gray-400 text-sm mb-2">Crypto Punkettes</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-blue-400 font-semibold mono">18.9 ETH</span>
+                                <span class="text-green-400 text-sm">+15.7%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nft-card rounded-xl overflow-hidden">
+                        <img src="./resources/nft-18.jpg" alt="NFT" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-semibold mb-1">Moonbird Mystic #445</h3>
+                            <p class="text-gray-400 text-sm mb-2">Moonbird Mystics</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-blue-400 font-semibold mono">16.8 ETH</span>
+                                <span class="text-green-400 text-sm">+9.4%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nft-card rounded-xl overflow-hidden">
+                        <img src="./resources/nft-20.jpg" alt="NFT" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-semibold mb-1">Digital Masterpiece #1</h3>
+                            <p class="text-gray-400 text-sm mb-2">Digital Masterpieces</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-blue-400 font-semibold mono">28.9 ETH</span>
+                                <span class="text-green-400 text-sm">+22.1%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Created Tab -->
+            <div id="created" class="tab-content hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Created NFTs</h2>
+                    <button class="btn-primary px-6 py-2 rounded-lg font-medium">Create New NFT</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="nft-card rounded-xl overflow-hidden">
+                        <img src="./resources/nft-6.jpg" alt="NFT" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-semibold mb-1">Blockchain Art #77</h3>
+                            <p class="text-gray-400 text-sm mb-2">Blockchain Arts</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-blue-400 font-semibold mono">3.4 ETH</span>
+                                <span class="text-gray-400 text-sm">Created 2 weeks ago</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nft-card rounded-xl overflow-hidden">
+                        <img src="./resources/nft-13.jpg" alt="NFT" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-semibold mb-1">Digital Artist #42</h3>
+                            <p class="text-gray-400 text-sm mb-2">Digital Artists</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-blue-400 font-semibold mono">5.6 ETH</span>
+                                <span class="text-gray-400 text-sm">Created 1 month ago</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nft-card rounded-xl overflow-hidden">
+                        <img src="./resources/nft-19.jpg" alt="NFT" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-semibold mb-1">Crypto Artist #89</h3>
+                            <p class="text-gray-400 text-sm mb-2">Crypto Artists</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-blue-400 font-semibold mono">4.2 ETH</span>
+                                <span class="text-gray-400 text-sm">Created 3 months ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Favorited Tab -->
+            <div id="favorited" class="tab-content hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Favorited NFTs</h2>
+                    <select
+                        class="bg-white bg-opacity-10 border border-white border-opacity-20 rounded-lg px-4 py-2 text-white">
+                        <option>Recently Added</option>
+                        <option>Price: Low to High</option>
+                        <option>Price: High to Low</option>
+                        <option>Most Popular</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div class="nft-card rounded-xl overflow-hidden">
+                        <img src="./resources/nft-3.jpg" alt="NFT" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-semibold mb-1">Polygon Master #89</h3>
+                            <p class="text-gray-400 text-sm mb-2">Polygon Masters</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-blue-400 font-semibold mono">2.1 ETH</span>
+                                <button class="text-red-400 hover:text-red-300">❤️</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nft-card rounded-xl overflow-hidden">
+                        <img src="./resources/nft-8.jpg" alt="NFT" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-semibold mb-1">Polygon Genesis #45</h3>
+                            <p class="text-gray-400 text-sm mb-2">Polygon Genesis</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-blue-400 font-semibold mono">4.7 ETH</span>
+                                <button class="text-red-400 hover:text-red-300">❤️</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nft-card rounded-xl overflow-hidden">
+                        <img src="./resources/nft-15.jpg" alt="NFT" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-semibold mb-1">NFT Trading Card #33</h3>
+                            <p class="text-gray-400 text-sm mb-2">NFT Trading Cards</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-blue-400 font-semibold mono">1.2 ETH</span>
+                                <button class="text-red-400 hover:text-red-300">❤️</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Tab -->
+            <div id="activity" class="tab-content hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Recent Activity</h2>
+                    <select
+                        class="bg-white bg-opacity-10 border border-white border-opacity-20 rounded-lg px-4 py-2 text-white">
+                        <option>All Activity</option>
+                        <option>Purchases</option>
+                        <option>Sales</option>
+                        <option>Listings</option>
+                        <option>Offers</option>
+                    </select>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="activity-item rounded-lg p-4 flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                                <span class="text-white">🛒</span>
+                            </div>
+                            <div>
+                                <div class="font-semibold">Purchased CryptoPunk #7804</div>
+                                <div class="text-sm text-gray-400">2 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-semibold mono text-green-400">-24.5 ETH</div>
+                            <div class="text-sm text-gray-400">$73,420.50</div>
+                        </div>
+                    </div>
+
+                    <div class="activity-item rounded-lg p-4 flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                                <span class="text-white">💰</span>
+                            </div>
+                            <div>
+                                <div class="font-semibold">Sold Azuki #4521</div>
+                                <div class="text-sm text-gray-400">1 day ago</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-semibold mono text-green-400">+8.2 ETH</div>
+                            <div class="text-sm text-gray-400">$24,590.00</div>
+                        </div>
+                    </div>
+
+                    <div class="activity-item rounded-lg p-4 flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
+                                <span class="text-white">❤️</span>
+                            </div>
+                            <div>
+                                <div class="font-semibold">Favorited Polygon Master #89</div>
+                                <div class="text-sm text-gray-400">2 days ago</div>
+                                <div class="text-right">
+                                    <div class="text-sm text-gray-400">Collection</div>
+                                    <div class="text-sm text-gray-400">Polygon Masters</div>
+                                </div>
+                            </div>
+
+                            <div class="activity-item rounded-lg p-4 flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
+                                        <span class="text-white">🎨</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold">Created Blockchain Art #77</div>
+                                        <div class="text-sm text-gray-400">1 week ago</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-semibold mono text-blue-400">Minted</div>
+                                    <div class="text-sm text-gray-400">New NFT</div>
+                                </div>
+                            </div>
+
+                            <div class="activity-item rounded-lg p-4 flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
+                                        <span class="text-white">📄</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold">Listed Moonbird #892 for sale</div>
+                                        <div class="text-sm text-gray-400">2 weeks ago</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-semibold mono text-blue-400">12.3 ETH</div>
+                                    <div class="text-sm text-gray-400">Listed</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="bg-black bg-opacity-50 py-12 border-t border-white border-opacity-10">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold gradient-text mb-4">NFTMarket</div>
+                        <p class="text-gray-400 mb-6">The world's premier NFT marketplace</p>
+                        <div class="flex justify-center space-x-6 text-sm text-gray-400">
+                            <a href="#" class="hover:text-white">Terms of Service</a>
+                            <a href="#" class="hover:text-white">Privacy Policy</a>
+                            <a href="#" class="hover:text-white">Support</a>
+                            <a href="#" class="hover:text-white">About</a>
+                        </div>
+                        <div class="mt-6 text-xs text-gray-500">
+                            © 2024 NFTMarket. All rights reserved.
+                        </div>
+                    </div>
+                </div>
+            </footer>
+
+            <script src="market.js"></script>
+            <script src="wallet.js"></script>
+            <script>
+                // Initialize Charts
+                const portfolioChart = echarts.init(document.getElementById('portfolioChart'));
+                const activityChart = echarts.init(document.getElementById('activityChart'));
+
+                // Portfolio Value Chart
+                portfolioChart.setOption({
+                    animation: false,
+                    grid: { top: 10, right: 10, bottom: 20, left: 40 },
+                    xAxis: {
+                        type: 'category',
+                        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        axisLine: { lineStyle: { color: '#333' } },
+                        axisLabel: { color: '#666' }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        splitLine: { lineStyle: { color: '#333' } },
+                        axisLabel: { color: '#666' }
+                    },
+                    series: [{
+                        data: [12.5, 13.2, 12.8, 14.5, 14.2, 15.8, 16.5],
+                        type: 'line',
+                        smooth: true,
+                        symbol: 'none',
+                        lineStyle: { color: '#0066ff', width: 3 },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(0, 102, 255, 0.2)' },
+                                { offset: 1, color: 'rgba(0, 102, 255, 0)' }
+                            ])
+                        }
+                    }]
+                });
+
+                // Activity Chart
+                activityChart.setOption({
+                    animation: false,
+                    grid: { top: 10, right: 10, bottom: 20, left: 40 },
+                    xAxis: {
+                        type: 'category',
+                        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        axisLine: { lineStyle: { color: '#333' } },
+                        axisLabel: { color: '#666' }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        splitLine: { lineStyle: { color: '#333' } },
+                        axisLabel: { color: '#666' }
+                    },
+                    series: [{
+                        data: [2, 5, 3, 7, 4, 6, 8],
+                        type: 'bar',
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#00ccff' },
+                                { offset: 1, color: '#0066ff' }
+                            ]),
+                            borderRadius: [4, 4, 0, 0]
+                        }
+                    }]
+                });
+
+                // Resize charts on window resize
+                window.addEventListener('resize', () => {
+                    portfolioChart.resize();
+                    activityChart.resize();
+                });
+
+                // Dynamic Inventory Rendering
+                document.addEventListener('DOMContentLoaded', () => {
+                    const inventoryGrid = document.getElementById('inventoryGrid');
+                    const state = Market.getState();
+
+                    // Update Total Value
+                    const totalValue = state.inventory.reduce((acc, item) => acc + item.price, 0);
+                    const totalValueEl = document.querySelector('.text-3xl.font-bold.mono');
+                    if (totalValueEl) totalValueEl.textContent = `${totalValue.toFixed(2)} ETH`;
+
+                    // Clear static content
+                    if (inventoryGrid) {
+                        inventoryGrid.innerHTML = '';
+
+                        if (state.inventory.length === 0) {
+                            inventoryGrid.innerHTML = `
+                                <div class="col-span-full text-center py-12 text-gray-500">
+                                    <p>No items in inventory. Go buy some NFTs!</p>
+                                    <a href="index.html" class="text-blue-400 hover:underline mt-2 inline-block">Browse Market</a>
+                                </div>
+                            `;
+                        } else {
+                            state.inventory.forEach(item => {
+                                const card = document.createElement('div');
+                                card.className = 'bg-[#1a1a1a] rounded-xl overflow-hidden border border-white border-opacity-10';
+                                card.innerHTML = `
+                                    <div class="h-48 overflow-hidden relative group">
+                                        <img src="${item.image}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="text-xs text-blue-400 font-medium">${item.collection}</span>
+                                            <span class="bg-white bg-opacity-10 px-2 py-1 rounded text-[10px] text-gray-300">#${item.id.split('-')[1]}</span>
+                                        </div>
+                                        <h3 class="text-lg font-bold mb-4">${item.name}</h3>
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <div class="text-gray-500 text-[10px] uppercase tracking-wider">Last Price</div>
+                                                <div class="text-sm font-bold mono">${item.price} ${item.currency || 'ETH'}</div>
+                                            </div>
+                                            <button onclick="window.sellItem('${item.id}', ${item.price})" class="btn-secondary px-4 py-1.5 rounded-lg text-sm font-medium text-white hover:bg-white hover:bg-opacity-10">
+                                                Sell
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                                inventoryGrid.appendChild(card);
+                            });
+                        }
+                    }
+                });
+
+                // Make sellItem globally available
+                window.sellItem = function (id, currentPrice) {
+                    // For simulation, we'll just increase the price by 10% automatically
+                    const newPrice = (currentPrice * 1.1).toFixed(2);
+                    if (confirm(`Sell this item for ${newPrice} ETH?`)) {
+                        Market.sellNFT(id, newPrice);
+                    }
+                };
+            </script>
+
+</html>
