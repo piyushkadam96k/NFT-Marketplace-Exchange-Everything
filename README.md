@@ -36,7 +36,7 @@ This project is built using modern web technologies:
 
 **Amit Kadam**
 
-*   🐙 **GitHub:** [@amitkadam96k](https://github.com/amitkadam96k)
+*   🐙 **GitHub:** [@amitkadam96k](https://github.com/piyushkadam96k)
 *   📷 **Instagram:** [@piyush_kadam96k](https://www.instagram.com/piyush_kadam96k/)
 
 ---
@@ -44,3 +44,4 @@ This project is built using modern web technologies:
 <div align="center">
   <sub>Built with ❤️ by Amit Kadam. Exchange Everything.</sub>
 </div>
+
