@@ -44,7 +44,7 @@ This project is built using modern web technologies:
 ---
 
 <div align="center">
-  <sub>Built with ❤️ by Amit Kadam. Exchange Everything.</sub>
+  <sub>Built with ❤️ by Amit Kadam. Exchange Everything</sub>
 </div>
 
 
