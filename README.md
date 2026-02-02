@@ -4,7 +4,7 @@
 
 > **A premium, futuristic digital marketplace featuring cinematic animations and a seamless user experience.** 🚀
 >
-> https://nft-marketplace-exchange-everything.vercel.app/
+> https://piyushkadam96k.github.io/NFT-Marketplace-Exchange-Everything
 
 ---
 
@@ -46,5 +46,6 @@ This project is built using modern web technologies:
 <div align="center">
   <sub>Built with ❤️ by Amit Kadam. Exchange Everything</sub>
 </div>
+
 
 
