@@ -1,3 +1,5 @@
+** any idea how/were to hide controls 
+
 # 🎨 NFT Marketplace - Exchange Everything
 
 ![Project Banner](https://img.shields.io/badge/Status-Live-success?style=for-the-badge) ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
