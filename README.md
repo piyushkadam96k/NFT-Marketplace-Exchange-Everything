@@ -1,4 +1,4 @@
-** any idea how/were to hide controls 
+Any idea how/were to hide controls 
 
 # 🎨 NFT Marketplace - Exchange Everything
 
